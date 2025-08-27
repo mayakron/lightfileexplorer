@@ -4,6 +4,32 @@
     {
         private System.ComponentModel.IContainer components = null;
 
+        private System.Windows.Forms.MenuStrip MenuStrip;
+
+        private System.Windows.Forms.ToolStripMenuItem FilesNewShortcutToolStripMenuItem;
+
+        private System.Windows.Forms.ToolStripMenuItem FilesAdvancedSelectionToolStripMenuItem;
+
+        private System.Windows.Forms.ToolStripMenuItem FileCopyPathToolStripMenuItem;
+
+        private System.Windows.Forms.ToolStripMenuItem FilesCopyToToolStripMenuItem;
+
+        private System.Windows.Forms.ToolStripMenuItem FilesMoveToToolStripMenuItem;
+
+        private System.Windows.Forms.ToolStripMenuItem FilesFindToolStripMenuItem;
+
+        private System.Windows.Forms.ToolStripMenuItem FilesFindNextToolStripMenuItem;
+
+        private System.Windows.Forms.ToolStripMenuItem FilesFindPreviousToolStripMenuItem;
+
+        private System.Windows.Forms.ToolStripSeparator ToolStripMenuItemSeparator9;
+
+        private System.Windows.Forms.ToolStripMenuItem GotoLogicalDriveToolStripMenuItem;
+
+        private System.Windows.Forms.ToolStripSeparator ToolStripMenuItemSeparator6;
+
+        private System.Windows.Forms.ToolStripMenuItem FileCopyNameToolStripMenuItem;
+
         private System.Windows.Forms.ToolStripMenuItem FilesCopyToolStripMenuItem;
 
         private System.Windows.Forms.ToolStripMenuItem FilesCutToolStripMenuItem;
@@ -32,8 +58,6 @@
 
         private System.Windows.Forms.ToolStripMenuItem FilesViewAsTextToolStripMenuItem;
 
-        private System.Windows.Forms.ListViewEx FileView;
-
         private System.Windows.Forms.ColumnHeader FileViewColumnHeaderAttributes;
 
         private System.Windows.Forms.ColumnHeader FileViewColumnHeaderExtension;
@@ -43,8 +67,6 @@
         private System.Windows.Forms.ColumnHeader FileViewColumnHeaderName;
 
         private System.Windows.Forms.ColumnHeader FileViewColumnHeaderSize;
-
-        private System.Windows.Forms.ImageList FileTypesImageList;
 
         private System.Windows.Forms.ToolStripMenuItem GotoCustomFolderToolStripMenuItem;
 
@@ -56,13 +78,11 @@
 
         private System.Windows.Forms.ToolStripMenuItem GotoUserFolderToolStripMenuItem;
 
+        private System.Windows.Forms.ToolStripMenuItem HelpProjectPageToolStripMenuItem;
+
         private System.Windows.Forms.ToolStripMenuItem HelpAboutToolStripMenuItem;
 
         private System.Windows.Forms.ToolStripMenuItem HelpToolStripMenuItem;
-
-        private System.Windows.Forms.MenuStrip MenuStrip;
-
-        private System.Windows.Forms.StatusStrip StatusStrip;
 
         private System.Windows.Forms.ToolStripStatusLabel StatusStripMessageLabel;
 
@@ -85,6 +105,30 @@
         private System.Windows.Forms.ToolStripSeparator ToolStripMenuItemSeparator5;
 
         private System.Windows.Forms.ToolStripSeparator ToolStripMenuItemSeparator8;
+
+        private System.Windows.Forms.ToolStripSeparator ToolStripMenuItemSeparator10;
+
+        private System.Windows.Forms.ToolStripMenuItem ViewToolStripMenuItem;
+
+        private System.Windows.Forms.ToolStripMenuItem ViewSortToolStripMenuItem;
+
+        private System.Windows.Forms.ToolStripMenuItem ViewSortNameToolStripMenuItem;
+
+        private System.Windows.Forms.ToolStripMenuItem ViewSortExtensionToolStripMenuItem;
+
+        private System.Windows.Forms.ToolStripMenuItem ViewSortSizeToolStripMenuItem;
+
+        private System.Windows.Forms.ToolStripMenuItem ViewSortLastModifiedToolStripMenuItem;
+
+        private System.Windows.Forms.ToolStripMenuItem ViewSortAttributesToolStripMenuItem;
+
+        private System.Windows.Forms.ListViewEx FileView;
+
+        private System.Windows.Forms.ImageList FileTypesImageList;
+
+        private System.Windows.Forms.StatusStrip StatusStrip;
+
+        private System.Windows.Forms.Timer Timer;
 
         protected override void Dispose(bool disposing)
         {
@@ -143,17 +187,26 @@
             this.ToolsFileExplorerHereToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.ToolsCommandPromptHereToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.ToolsPowerShellConsoleHereToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.ViewToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.ViewSortToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.ViewSortNameToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.ViewSortExtensionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.ViewSortSizeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.ViewSortLastModifiedToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.ViewSortAttributesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.HelpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.HelpProjectPageToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.ToolStripMenuItemSeparator10 = new System.Windows.Forms.ToolStripSeparator();
             this.HelpAboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.StatusStrip = new System.Windows.Forms.StatusStrip();
             this.StatusStripMessageLabel = new System.Windows.Forms.ToolStripStatusLabel();
+            this.Timer = new System.Windows.Forms.Timer(this.components);
             this.FileView = new System.Windows.Forms.ListViewEx();
             this.FileViewColumnHeaderName = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.FileViewColumnHeaderExtension = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.FileViewColumnHeaderSize = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.FileViewColumnHeaderLastModified = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.FileViewColumnHeaderAttributes = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.Timer = new System.Windows.Forms.Timer(this.components);
             this.MenuStrip.SuspendLayout();
             this.StatusStrip.SuspendLayout();
             this.SuspendLayout();
@@ -171,6 +224,7 @@
             this.FilesToolStripMenuItem,
             this.GotoToolStripMenuItem,
             this.ToolsToolStripMenuItem,
+            this.ViewToolStripMenuItem,
             this.HelpToolStripMenuItem});
             this.MenuStrip.Location = new System.Drawing.Point(0, 0);
             this.MenuStrip.Name = "MenuStrip";
@@ -524,18 +578,97 @@
             this.ToolsPowerShellConsoleHereToolStripMenuItem.Text = "PowerShell Console Here";
             this.ToolsPowerShellConsoleHereToolStripMenuItem.Click += new System.EventHandler(this.ToolsPowerShellConsoleHereToolStripMenuItem_Click);
             // 
+            // ViewToolStripMenuItem
+            // 
+            this.ViewToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.ViewSortToolStripMenuItem});
+            this.ViewToolStripMenuItem.Name = "ViewToolStripMenuItem";
+            this.ViewToolStripMenuItem.Size = new System.Drawing.Size(44, 20);
+            this.ViewToolStripMenuItem.Text = "&View";
+            // 
+            // ViewSortToolStripMenuItem
+            // 
+            this.ViewSortToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.ViewSortNameToolStripMenuItem,
+            this.ViewSortExtensionToolStripMenuItem,
+            this.ViewSortSizeToolStripMenuItem,
+            this.ViewSortLastModifiedToolStripMenuItem,
+            this.ViewSortAttributesToolStripMenuItem});
+            this.ViewSortToolStripMenuItem.Name = "ViewSortToolStripMenuItem";
+            this.ViewSortToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.ViewSortToolStripMenuItem.Text = "&Sort";
+            // 
+            // ViewSortNameToolStripMenuItem
+            // 
+            this.ViewSortNameToolStripMenuItem.Name = "ViewSortNameToolStripMenuItem";
+            this.ViewSortNameToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Alt) 
+            | System.Windows.Forms.Keys.D1)));
+            this.ViewSortNameToolStripMenuItem.Size = new System.Drawing.Size(209, 22);
+            this.ViewSortNameToolStripMenuItem.Text = "&Name";
+            this.ViewSortNameToolStripMenuItem.Click += new System.EventHandler(this.ViewSortNameToolStripMenuItem_Click);
+            // 
+            // ViewSortExtensionToolStripMenuItem
+            // 
+            this.ViewSortExtensionToolStripMenuItem.Name = "ViewSortExtensionToolStripMenuItem";
+            this.ViewSortExtensionToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Alt) 
+            | System.Windows.Forms.Keys.D2)));
+            this.ViewSortExtensionToolStripMenuItem.Size = new System.Drawing.Size(209, 22);
+            this.ViewSortExtensionToolStripMenuItem.Text = "&Extension";
+            this.ViewSortExtensionToolStripMenuItem.Click += new System.EventHandler(this.ViewSortExtensionToolStripMenuItem_Click);
+            // 
+            // ViewSortSizeToolStripMenuItem
+            // 
+            this.ViewSortSizeToolStripMenuItem.Name = "ViewSortSizeToolStripMenuItem";
+            this.ViewSortSizeToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Alt) 
+            | System.Windows.Forms.Keys.D3)));
+            this.ViewSortSizeToolStripMenuItem.Size = new System.Drawing.Size(209, 22);
+            this.ViewSortSizeToolStripMenuItem.Text = "&Size";
+            this.ViewSortSizeToolStripMenuItem.Click += new System.EventHandler(this.ViewSortSizeToolStripMenuItem_Click);
+            // 
+            // ViewSortLastModifiedToolStripMenuItem
+            // 
+            this.ViewSortLastModifiedToolStripMenuItem.Name = "ViewSortLastModifiedToolStripMenuItem";
+            this.ViewSortLastModifiedToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Alt) 
+            | System.Windows.Forms.Keys.D4)));
+            this.ViewSortLastModifiedToolStripMenuItem.Size = new System.Drawing.Size(209, 22);
+            this.ViewSortLastModifiedToolStripMenuItem.Text = "Last &Modified";
+            this.ViewSortLastModifiedToolStripMenuItem.Click += new System.EventHandler(this.ViewSortLastModifiedToolStripMenuItem_Click);
+            // 
+            // ViewSortAttributesToolStripMenuItem
+            // 
+            this.ViewSortAttributesToolStripMenuItem.Name = "ViewSortAttributesToolStripMenuItem";
+            this.ViewSortAttributesToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Alt) 
+            | System.Windows.Forms.Keys.D5)));
+            this.ViewSortAttributesToolStripMenuItem.Size = new System.Drawing.Size(209, 22);
+            this.ViewSortAttributesToolStripMenuItem.Text = "&Attributes";
+            this.ViewSortAttributesToolStripMenuItem.Click += new System.EventHandler(this.ViewSortAttributesToolStripMenuItem_Click);
+            // 
             // HelpToolStripMenuItem
             // 
             this.HelpToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.HelpProjectPageToolStripMenuItem,
+            this.ToolStripMenuItemSeparator10,
             this.HelpAboutToolStripMenuItem});
             this.HelpToolStripMenuItem.Name = "HelpToolStripMenuItem";
             this.HelpToolStripMenuItem.Size = new System.Drawing.Size(44, 20);
             this.HelpToolStripMenuItem.Text = "&Help";
             // 
+            // HelpProjectPageToolStripMenuItem
+            // 
+            this.HelpProjectPageToolStripMenuItem.Name = "HelpProjectPageToolStripMenuItem";
+            this.HelpProjectPageToolStripMenuItem.Size = new System.Drawing.Size(140, 22);
+            this.HelpProjectPageToolStripMenuItem.Text = "Project &Page";
+            this.HelpProjectPageToolStripMenuItem.Click += new System.EventHandler(this.HelpProjectPageToolStripMenuItem_Click);
+            // 
+            // ToolStripMenuItemSeparator10
+            // 
+            this.ToolStripMenuItemSeparator10.Name = "ToolStripMenuItemSeparator10";
+            this.ToolStripMenuItemSeparator10.Size = new System.Drawing.Size(137, 6);
+            // 
             // HelpAboutToolStripMenuItem
             // 
             this.HelpAboutToolStripMenuItem.Name = "HelpAboutToolStripMenuItem";
-            this.HelpAboutToolStripMenuItem.Size = new System.Drawing.Size(107, 22);
+            this.HelpAboutToolStripMenuItem.Size = new System.Drawing.Size(140, 22);
             this.HelpAboutToolStripMenuItem.Text = "&About";
             this.HelpAboutToolStripMenuItem.Click += new System.EventHandler(this.HelpAboutToolStripMenuItem_Click);
             // 
@@ -555,6 +688,12 @@
             this.StatusStripMessageLabel.Spring = true;
             this.StatusStripMessageLabel.Text = "Welcome!";
             this.StatusStripMessageLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // Timer
+            // 
+            this.Timer.Enabled = true;
+            this.Timer.Interval = 250;
+            this.Timer.Tick += new System.EventHandler(this.Timer_Tick);
             // 
             // FileView
             // 
@@ -591,7 +730,7 @@
             // FileViewColumnHeaderName
             // 
             this.FileViewColumnHeaderName.Text = "Name";
-            this.FileViewColumnHeaderName.Width = 700;
+            this.FileViewColumnHeaderName.Width = 685;
             // 
             // FileViewColumnHeaderExtension
             // 
@@ -607,18 +746,12 @@
             // FileViewColumnHeaderLastModified
             // 
             this.FileViewColumnHeaderLastModified.Text = "Last Modified";
-            this.FileViewColumnHeaderLastModified.Width = 100;
+            this.FileViewColumnHeaderLastModified.Width = 115;
             // 
             // FileViewColumnHeaderAttributes
             // 
             this.FileViewColumnHeaderAttributes.Text = "Attributes";
             this.FileViewColumnHeaderAttributes.Width = 70;
-            // 
-            // Timer
-            // 
-            this.Timer.Enabled = true;
-            this.Timer.Interval = 250;
-            this.Timer.Tick += new System.EventHandler(this.Timer_Tick);
             // 
             // MainWindow
             // 
@@ -643,21 +776,6 @@
             this.StatusStrip.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
-
         }
-
-        private System.Windows.Forms.ToolStripMenuItem FilesNewShortcutToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem FilesAdvancedSelectionToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem FileCopyPathToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem FilesCopyToToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem FilesMoveToToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem FilesFindToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem FilesFindNextToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem FilesFindPreviousToolStripMenuItem;
-        private System.Windows.Forms.ToolStripSeparator ToolStripMenuItemSeparator9;
-        private System.Windows.Forms.ToolStripMenuItem GotoLogicalDriveToolStripMenuItem;
-        private System.Windows.Forms.ToolStripSeparator ToolStripMenuItemSeparator6;
-        private System.Windows.Forms.ToolStripMenuItem FileCopyNameToolStripMenuItem;
-        private System.Windows.Forms.Timer Timer;
     }
 }

@@ -4,6 +4,12 @@ using System.Text.RegularExpressions;
 
 namespace LightFileExplorer
 {
+    /*
+     * A note on junctions:
+     * 
+     * When copying items it is expected that junctions are followed (i.e. dereferenced, with target files and folders copied to the destination) and therefore not preserved as junctions.
+     * When moving or deleting items it is expected that junctions are moved or deleted as junctions and not followed.
+     */
     internal static class FileUtility
     {
         private static readonly Regex ValidNameRegex = new Regex("^[^\\\\/:*?\"<>|]+$");
@@ -20,9 +26,9 @@ namespace LightFileExplorer
             Microsoft.VisualBasic.FileIO.FileSystem.CopyFile(source, destination, true);
         }
 
-        public static void CopyPath(string source, string destination)
+        public static void CopyPath(string source, string destination, FileAttributes sourceAttributes)
         {
-            if (File.GetAttributes(source).HasFlag(FileAttributes.Directory)) CopyDirectory(source, destination); else CopyFile(source, destination);
+            if (sourceAttributes.HasFlag(FileAttributes.Directory)) CopyDirectory(source, destination); else CopyFile(source, destination);
         }
 
         public static void CreateDirectory(string path)
@@ -30,51 +36,54 @@ namespace LightFileExplorer
             Directory.CreateDirectory(path);
         }
 
-        public static void DeleteDirectory(string path)
+        public static void DeleteDirectory(string path, FileAttributes attributes)
         {
-            var findHandle = WindowsApi.FindFirstFile(path + @"\*.*", out WindowsApi.WIN32_FIND_DATA findData);
-
-            if (findHandle.ToInt64() <= 0)
+            if (!attributes.HasFlag(FileAttributes.ReparsePoint))
             {
-                throw new Exception($"Cannot access the \"{path}\" path.");
-            }
+                var findHandle = WindowsApi.FindFirstFile(path + @"\*.*", out WindowsApi.WIN32_FIND_DATA findData);
 
-            try
-            {
-                do
+                if (findHandle.ToInt64() <= 0)
                 {
-                    if ((findData.cFileName != ".") && (findData.cFileName != ".."))
+                    throw new Exception($"Cannot access the \"{path}\" path.");
+                }
+
+                try
+                {
+                    do
                     {
-                        var filePath = Path.Combine(path, findData.cFileName);
+                        if ((findData.cFileName != ".") && (findData.cFileName != ".."))
+                        {
+                            var filePath = Path.Combine(path, findData.cFileName);
 
-                        if (findData.dwFileAttributes.HasFlag(FileAttributes.ReadOnly))
-                        {
-                            File.SetAttributes(filePath, FileAttributes.Normal);
-                        }
-
-                        if (findData.dwFileAttributes.HasFlag(FileAttributes.Directory))
-                        {
-                            DeleteDirectory(filePath);
-                        }
-                        else
-                        {
-                            File.Delete(filePath);
+                            if (findData.dwFileAttributes.HasFlag(FileAttributes.Directory))
+                            {
+                                DeleteDirectory(filePath, findData.dwFileAttributes);
+                            }
+                            else
+                            {
+                                DeleteFile(filePath, findData.dwFileAttributes);
+                            }
                         }
                     }
+                    while (WindowsApi.FindNextFile(findHandle, out findData));
                 }
-                while (WindowsApi.FindNextFile(findHandle, out findData));
+                finally
+                {
+                    WindowsApi.FindClose(findHandle);
+                }
             }
-            finally
+
+            if (attributes.HasFlag(FileAttributes.ReadOnly))
             {
-                WindowsApi.FindClose(findHandle);
+                File.SetAttributes(path, FileAttributes.Normal);
             }
 
             Directory.Delete(path, false);
         }
 
-        public static void DeleteFile(string path)
+        public static void DeleteFile(string path, FileAttributes attributes)
         {
-            if (File.GetAttributes(path).HasFlag(FileAttributes.ReadOnly))
+            if (attributes.HasFlag(FileAttributes.ReadOnly))
             {
                 File.SetAttributes(path, FileAttributes.Normal);
             }
@@ -82,9 +91,9 @@ namespace LightFileExplorer
             File.Delete(path);
         }
 
-        public static void DeletePath(string path)
+        public static void DeletePath(string path, FileAttributes attributes)
         {
-            if (File.GetAttributes(path).HasFlag(FileAttributes.Directory)) DeleteDirectory(path); else DeleteFile(path);
+            if (attributes.HasFlag(FileAttributes.Directory)) DeleteDirectory(path, attributes); else DeleteFile(path, attributes);
         }
 
         public static bool DirectoryExists(string path)
@@ -142,13 +151,13 @@ namespace LightFileExplorer
             Microsoft.VisualBasic.FileSystem.Rename(source, destination);
         }
 
-        public static void ScanMany(string path, Action<string, DateTime, FileAttributes> folderAction, Action<string, ulong, DateTime, FileAttributes> fileAction)
+        public static bool ScanMultipleItems(string path, Action<string, DateTime, FileAttributes> folderAction, Action<string, ulong, DateTime, FileAttributes> fileAction, bool ignoreAccessExceptions = false)
         {
             var findHandle = WindowsApi.FindFirstFile(path + @"\*.*", out WindowsApi.WIN32_FIND_DATA findData);
 
             if (findHandle.ToInt64() <= 0)
             {
-                throw new Exception($"Cannot access the \"{path}\" path.");
+                if (ignoreAccessExceptions) return false; else throw new Exception($"Cannot access the \"{path}\" path.");
             }
 
             try
@@ -177,15 +186,17 @@ namespace LightFileExplorer
             {
                 WindowsApi.FindClose(findHandle);
             }
+
+            return true;
         }
 
-        public static void ScanSingle(string path, Action<string, DateTime, FileAttributes> folderAction, Action<string, ulong, DateTime, FileAttributes> fileAction)
+        public static bool ScanSingleItem(string path, Action<string, DateTime, FileAttributes> folderAction, Action<string, ulong, DateTime, FileAttributes> fileAction, bool ignoreAccessExceptions = true)
         {
             var findHandle = WindowsApi.FindFirstFile(path, out WindowsApi.WIN32_FIND_DATA findData);
 
             if (findHandle.ToInt64() <= 0)
             {
-                throw new Exception($"Cannot access the \"{path}\" path.");
+                if (ignoreAccessExceptions) return false; else throw new Exception($"Cannot access the \"{path}\" path.");
             }
 
             try
@@ -207,6 +218,8 @@ namespace LightFileExplorer
             {
                 WindowsApi.FindClose(findHandle);
             }
+
+            return true;
         }
 
         public static void ValidateName(string name)

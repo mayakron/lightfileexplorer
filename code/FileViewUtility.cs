@@ -21,7 +21,7 @@ namespace LightFileExplorer
                         new ListViewItem.ListViewSubItem { Text = name, Tag = null },
                         new ListViewItem.ListViewSubItem { Text = Path.GetExtension(name).ToUpperInvariant(), Tag = null },
                         new ListViewItem.ListViewSubItem { Text = size.ToString("N0", SizeColumnNumberFormatInfo), Tag = size },
-                        new ListViewItem.ListViewSubItem { Text = lastWriteTime.ToString("yyyy-MM-dd HH:mm"), Tag = lastWriteTime },
+                        new ListViewItem.ListViewSubItem { Text = lastWriteTime.ToString("yyyy-MM-dd HH:mm:ss"), Tag = lastWriteTime },
                         new ListViewItem.ListViewSubItem { Text = FileAttributesUtility.ToString(attributes), Tag = attributes }
                     },
                     1
@@ -43,7 +43,7 @@ namespace LightFileExplorer
                         new ListViewItem.ListViewSubItem { Text = name, Tag = null },
                         new ListViewItem.ListViewSubItem { Text = null, Tag = null },
                         new ListViewItem.ListViewSubItem { Text = null, Tag = null },
-                        new ListViewItem.ListViewSubItem { Text = lastWriteTime.ToString("yyyy-MM-dd HH:mm"), Tag = lastWriteTime },
+                        new ListViewItem.ListViewSubItem { Text = lastWriteTime.ToString("yyyy-MM-dd HH:mm:ss"), Tag = lastWriteTime },
                         new ListViewItem.ListViewSubItem { Text = FileAttributesUtility.ToString(attributes), Tag = attributes }
                     },
                     0
@@ -149,7 +149,7 @@ namespace LightFileExplorer
             viewItem.SubItems[2].Text = size.ToString("N0", SizeColumnNumberFormatInfo);
             viewItem.SubItems[2].Tag = size;
 
-            viewItem.SubItems[3].Text = lastWriteTime.ToString("yyyy-MM-dd HH:mm");
+            viewItem.SubItems[3].Text = lastWriteTime.ToString("yyyy-MM-dd HH:mm:ss");
             viewItem.SubItems[3].Tag = lastWriteTime;
 
             viewItem.SubItems[4].Text = FileAttributesUtility.ToString(attributes);
@@ -161,7 +161,7 @@ namespace LightFileExplorer
             viewItem.SubItems[2].Text = null;
             viewItem.SubItems[2].Tag = null;
 
-            viewItem.SubItems[3].Text = lastWriteTime.ToString("yyyy-MM-dd HH:mm");
+            viewItem.SubItems[3].Text = lastWriteTime.ToString("yyyy-MM-dd HH:mm:ss");
             viewItem.SubItems[3].Tag = lastWriteTime;
 
             viewItem.SubItems[4].Text = FileAttributesUtility.ToString(attributes);

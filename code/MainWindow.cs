@@ -3,9 +3,9 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Diagnostics;
+using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows.Forms;
@@ -14,7 +14,7 @@ namespace LightFileExplorer
 {
     internal partial class MainWindow : Form
     {
-        private readonly ConcurrentQueue<Action> FileSystemWatcherQueue = new ConcurrentQueue<Action>();
+        private readonly ConcurrentDictionary<string, byte> FileSystemWatcherDictionary = new ConcurrentDictionary<string, byte>();
 
         private readonly FileViewColumnAttributesSorter FileViewColumnAttributesSorter = new FileViewColumnAttributesSorter();
 
@@ -128,7 +128,8 @@ namespace LightFileExplorer
                 };
 
                 return menuItem;
-            };
+            }
+            ;
 
             InitializeComponent();
 
@@ -138,7 +139,7 @@ namespace LightFileExplorer
 
             this.FileView.ListViewItemSorter = this.FileViewColumnNameSorter;
 
-            if (ConfigurationUtility.OpenWith.Count > 0)
+            if ((ConfigurationUtility.OpenWith != null) && (ConfigurationUtility.OpenWith.Count > 0))
             {
                 var filesOpenWithMenuItem = new ToolStripMenuItem();
 
@@ -146,9 +147,9 @@ namespace LightFileExplorer
 
                 for (int index = 0; index < ConfigurationUtility.OpenWith.Count; index++)
                 {
-                    var element = ConfigurationUtility.OpenWith[index];
+                    var item = ConfigurationUtility.OpenWith[index];
 
-                    filesOpenWithMenuItem.DropDownItems.Add(CreateFilesOpenWithMenuItem(element.Item1, element.Item2, GetFunctionShortcutKeys(Keys.Control, index)));
+                    filesOpenWithMenuItem.DropDownItems.Add(CreateFilesOpenWithMenuItem(item.Item1, item.Item2, GetFunctionShortcutKeys(Keys.Control, index)));
                 }
 
                 this.FilesToolStripMenuItem.DropDownItems.Insert(3, filesOpenWithMenuItem);
@@ -181,15 +182,15 @@ namespace LightFileExplorer
             this.GotoLogicalDriveToolStripMenuItem.DropDownItems.Add(CreateGotoKnownFolderMenuItem(@"Y:\", @"Y:\", Keys.Control | Keys.Alt | Keys.Y));
             this.GotoLogicalDriveToolStripMenuItem.DropDownItems.Add(CreateGotoKnownFolderMenuItem(@"Z:\", @"Z:\", Keys.Control | Keys.Alt | Keys.Z));
 
-            if (ConfigurationUtility.GotoFavorites.Count > 0)
+            if ((ConfigurationUtility.GotoFavorites != null) && (ConfigurationUtility.GotoFavorites.Count > 0))
             {
                 this.GotoToolStripMenuItem.DropDownItems.Add(new ToolStripSeparator());
 
                 for (int index = 0; index < ConfigurationUtility.GotoFavorites.Count; index++)
                 {
-                    var element = ConfigurationUtility.GotoFavorites[index];
+                    var item = ConfigurationUtility.GotoFavorites[index];
 
-                    this.GotoToolStripMenuItem.DropDownItems.Add(CreateGotoKnownFolderMenuItem(element.Item1, element.Item2, GetDigitShortcutKeys(Keys.Control, index)));
+                    this.GotoToolStripMenuItem.DropDownItems.Add(CreateGotoKnownFolderMenuItem(item.Item1, item.Item2, GetDigitShortcutKeys(Keys.Control, index)));
                 }
             }
         }
@@ -322,11 +323,11 @@ namespace LightFileExplorer
                                 {
                                     var exceptions = new List<Exception>();
 
-                                    foreach (var element in asyncOperationParameter)
+                                    foreach (var item in asyncOperationParameter)
                                     {
                                         try
                                         {
-                                            FileUtility.CopyPath(element.Item1, element.Item2);
+                                            FileUtility.CopyPath(item.Item1, item.Item2, FileUtility.GetAttributes(item.Item1));
                                         }
                                         catch (Exception ex)
                                         {
@@ -403,11 +404,11 @@ namespace LightFileExplorer
                         {
                             var exceptions = new List<Exception>();
 
-                            foreach (var element in asyncOperationParameter)
+                            foreach (var item in asyncOperationParameter)
                             {
                                 try
                                 {
-                                    FileUtility.DeletePath(element);
+                                    FileUtility.DeletePath(item, FileUtility.GetAttributes(item));
                                 }
                                 catch (Exception ex)
                                 {
@@ -548,11 +549,11 @@ namespace LightFileExplorer
                                 {
                                     var exceptions = new List<Exception>();
 
-                                    foreach (var element in asyncOperationParameter)
+                                    foreach (var item in asyncOperationParameter)
                                     {
                                         try
                                         {
-                                            FileUtility.MovePath(element.Item1, element.Item2);
+                                            FileUtility.MovePath(item.Item1, item.Item2);
                                         }
                                         catch (Exception ex)
                                         {
@@ -716,71 +717,6 @@ namespace LightFileExplorer
 
         private void FilesPasteToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            // Shell Clipboard Formats:
-            // https://learn.microsoft.com/en-us/windows/win32/shell/clipboard
-
-            bool ProcessDataObjectFileContent(System.Runtime.InteropServices.ComTypes.IDataObject dataObject, int fileIndex, string destinationPath)
-            {
-                var formatetc = new System.Runtime.InteropServices.ComTypes.FORMATETC
-                {
-                    cfFormat = (short)DataFormats.GetFormat("FileContents").Id,
-                    dwAspect = System.Runtime.InteropServices.ComTypes.DVASPECT.DVASPECT_CONTENT,
-                    lindex = fileIndex,
-                    ptd = IntPtr.Zero,
-                    tymed = System.Runtime.InteropServices.ComTypes.TYMED.TYMED_ISTREAM
-                };
-
-                dataObject.GetData(ref formatetc, out System.Runtime.InteropServices.ComTypes.STGMEDIUM stgmedium);
-
-                switch (stgmedium.tymed)
-                {
-                    case System.Runtime.InteropServices.ComTypes.TYMED.TYMED_ISTREAM:
-
-                        try
-                        {
-                            var iStream = (System.Runtime.InteropServices.ComTypes.IStream)Marshal.GetObjectForIUnknown(stgmedium.unionmember);
-
-                            try
-                            {
-                                byte[] buffer = new byte[4096];
-
-                                ulong bufferLength = (ulong)buffer.Length;
-
-                                unsafe
-                                {
-                                    using (var fileStream = new FileStream(destinationPath, FileMode.Create, FileAccess.Write, FileShare.Read))
-                                    {
-                                        ulong bytesRead = 0;
-
-                                        do
-                                        {
-                                            iStream.Read(buffer, buffer.Length, (IntPtr)(&bytesRead));
-
-                                            if (bytesRead > 0)
-                                            {
-                                                fileStream.Write(buffer, 0, (int)bytesRead);
-                                            }
-                                        }
-                                        while (!(bytesRead < bufferLength));
-                                    }
-                                }
-                            }
-                            finally
-                            {
-                                Marshal.ReleaseComObject(iStream);
-                            }
-                        }
-                        finally
-                        {
-                            Marshal.Release(stgmedium.unionmember);
-                        }
-
-                        return true;
-                }
-
-                return false;
-            }
-
             try
             {
                 var dataObject = Clipboard.GetDataObject();
@@ -807,16 +743,19 @@ namespace LightFileExplorer
 
                         if (fileDropEffectData != null)
                         {
-                            byte[] fileDropEffectDataBytes;
-
-                            using (var memoryStream = fileDropEffectData as MemoryStream)
+                            if (fileDropEffectData is MemoryStream)
                             {
-                                fileDropEffectDataBytes = memoryStream.ToArray();
-                            }
+                                byte[] fileDropEffectDataBytes;
 
-                            if ((fileDropEffectDataBytes.Length >= 4) && (fileDropEffectDataBytes[0] == 2) && (fileDropEffectDataBytes[1] == 0) && (fileDropEffectDataBytes[2] == 0) && (fileDropEffectDataBytes[3] == 0))
-                            {
-                                fileDropEffect = 2;
+                                using (var memoryStream = fileDropEffectData as MemoryStream)
+                                {
+                                    fileDropEffectDataBytes = memoryStream.ToArray();
+                                }
+
+                                if ((fileDropEffectDataBytes.Length >= 4) && (fileDropEffectDataBytes[0] == 2) && (fileDropEffectDataBytes[1] == 0) && (fileDropEffectDataBytes[2] == 0) && (fileDropEffectDataBytes[3] == 0))
+                                {
+                                    fileDropEffect = 2;
+                                }
                             }
                         }
 
@@ -830,11 +769,11 @@ namespace LightFileExplorer
                                     {
                                         var exceptions = new List<Exception>();
 
-                                        foreach (var element in asyncOperationParameter)
+                                        foreach (var item in asyncOperationParameter)
                                         {
                                             try
                                             {
-                                                FileUtility.CopyPath(element.Item1, element.Item2);
+                                                FileUtility.CopyPath(item.Item1, item.Item2, FileUtility.GetAttributes(item.Item1));
                                             }
                                             catch (Exception ex)
                                             {
@@ -861,11 +800,11 @@ namespace LightFileExplorer
                                     {
                                         var exceptions = new List<Exception>();
 
-                                        foreach (var element in asyncOperationParameter)
+                                        foreach (var item in asyncOperationParameter)
                                         {
                                             try
                                             {
-                                                FileUtility.MovePath(element.Item1, element.Item2);
+                                                FileUtility.MovePath(item.Item1, item.Item2);
                                             }
                                             catch (Exception ex)
                                             {
@@ -885,78 +824,9 @@ namespace LightFileExplorer
                                 break;
                         }
                     }
-                    else if (dataObject.GetDataPresent("FileGroupDescriptorW", false))
-                    {
-                        this.MainWindow_RunAsyncOperation
-                        (
-                            (asyncOperationParameter) =>
-                            {
-                                var fileDropList = new List<string>();
-
-                                byte[] fileGroupDescriptorBytes;
-
-                                using (var fileGroupDescriptorStream = (MemoryStream)asyncOperationParameter.Item1.GetData("FileGroupDescriptorW"))
-                                {
-                                    fileGroupDescriptorBytes = fileGroupDescriptorStream.ToArray();
-                                }
-
-                                var fileGroupDescriptorWPointer = Marshal.AllocHGlobal(fileGroupDescriptorBytes.Length);
-
-                                try
-                                {
-                                    Marshal.Copy(fileGroupDescriptorBytes, 0, fileGroupDescriptorWPointer, fileGroupDescriptorBytes.Length);
-
-                                    var fileGroupDescriptor = (WindowsApi.FILEGROUPDESCRIPTORW)Marshal.PtrToStructure(fileGroupDescriptorWPointer, typeof(WindowsApi.FILEGROUPDESCRIPTORW));
-
-                                    var fileDescriptorPointer = (IntPtr)((ulong)fileGroupDescriptorWPointer + 4);
-
-                                    for (int fileDescriptorIndex = 0; fileDescriptorIndex < fileGroupDescriptor.cItems; fileDescriptorIndex++)
-                                    {
-                                        var fileDescriptor = (WindowsApi.FILEDESCRIPTORW)Marshal.PtrToStructure(fileDescriptorPointer, typeof(WindowsApi.FILEDESCRIPTORW));
-
-                                        fileDropList.Add(Path.Combine(asyncOperationParameter.Item2, fileDescriptor.cFileName));
-
-                                        fileDescriptorPointer = (IntPtr)((ulong)fileDescriptorPointer + (ulong)Marshal.SizeOf(fileDescriptor));
-                                    }
-                                }
-                                finally
-                                {
-                                    Marshal.FreeHGlobal(fileGroupDescriptorWPointer);
-                                }
-
-                                var comUnderlyingDataObject = (System.Runtime.InteropServices.ComTypes.IDataObject)asyncOperationParameter.Item1;
-
-                                var exceptions = new List<Exception>();
-
-                                for (int index = 0; index < fileDropList.Count; index++)
-                                {
-                                    try
-                                    {
-                                        var fileDropItem = fileDropList[index];
-
-                                        if (!ProcessDataObjectFileContent(comUnderlyingDataObject, index, fileDropItem))
-                                        {
-                                            throw new Exception($"An error occurred while copying item \"{fileDropItem}\".");
-                                        }
-                                    }
-                                    catch (Exception ex)
-                                    {
-                                        exceptions.Add(ex);
-                                    }
-                                }
-
-                                if (exceptions.Count > 0)
-                                {
-                                    throw new AggregateException(exceptions);
-                                }
-                            },
-                            new Tuple<IDataObject, string>(dataObject, this.CurrentPath),
-                            $"Copying items to \"{this.CurrentPath}\"..."
-                        );
-                    }
                     else
                     {
-                        throw new Exception($"Don't know how to handle these Clipboard data formats: {string.Join(", ", dataObject.GetFormats(false))}");
+                        throw new Exception($"I don't know how to handle these Clipboard data formats: {string.Join(", ", dataObject.GetFormats(false))}.");
                     }
                 }
             }
@@ -986,7 +856,7 @@ namespace LightFileExplorer
                 {
                     if (this.FileView.SelectedItems.Count > 1)
                     {
-                        throw new Exception($"Don't know how to handle this operation on more than one item.");
+                        throw new Exception($"Performing this operation on more than one item is not supported.");
                     }
                     else
                     {
@@ -1002,7 +872,7 @@ namespace LightFileExplorer
 
                                 FileUtility.ValidateName(newName);
 
-                                // Not checking if the path exists here to allow for changes only in casing.
+                                // Not checking if the new name already exists to allow for changes only in casing.
 
                                 FileUtility.RenamePath(viewItem.Name, newName);
 
@@ -1010,6 +880,10 @@ namespace LightFileExplorer
                             }
                         }
                     }
+                }
+                else
+                {
+                    throw new Exception("At least one item must be selected.");
                 }
             }
             catch (Exception ex)
@@ -1043,6 +917,11 @@ namespace LightFileExplorer
             {
                 if (this.FileView.SelectedItems.Count > 0)
                 {
+                    if (string.IsNullOrEmpty(ConfigurationUtility.BinaryViewer))
+                    {
+                        throw new Exception("No binary viewer has been specified in the application's configuration.");
+                    }
+
                     foreach (ListViewItem viewItem in this.FileView.SelectedItems)
                     {
                         if (!FileViewUtility.IsDirectory(viewItem))
@@ -1050,6 +929,10 @@ namespace LightFileExplorer
                             Process.Start(new ProcessStartInfo { FileName = ConfigurationUtility.BinaryViewer, Arguments = $"\"{Path.Combine(this.CurrentPath, viewItem.Name)}\"", WorkingDirectory = this.CurrentPath, UseShellExecute = false });
                         }
                     }
+                }
+                else
+                {
+                    throw new Exception("At least one item must be selected.");
                 }
             }
             catch (Exception ex)
@@ -1064,6 +947,11 @@ namespace LightFileExplorer
             {
                 if (this.FileView.SelectedItems.Count > 0)
                 {
+                    if (string.IsNullOrEmpty(ConfigurationUtility.TextViewer))
+                    {
+                        throw new Exception("No text viewer has been specified in the application's configuration.");
+                    }
+
                     foreach (ListViewItem viewItem in this.FileView.SelectedItems)
                     {
                         if (!FileViewUtility.IsDirectory(viewItem))
@@ -1071,6 +959,10 @@ namespace LightFileExplorer
                             Process.Start(new ProcessStartInfo { FileName = ConfigurationUtility.TextViewer, Arguments = $"\"{Path.Combine(this.CurrentPath, viewItem.Name)}\"", WorkingDirectory = this.CurrentPath, UseShellExecute = false });
                         }
                     }
+                }
+                else
+                {
+                    throw new Exception("At least one item must be selected.");
                 }
             }
             catch (Exception ex)
@@ -1081,127 +973,39 @@ namespace LightFileExplorer
 
         private void FileSystemWatcher_OnChanged(object source, FileSystemEventArgs e)
         {
-            this.FileSystemWatcherQueue.Enqueue
-            (
-                new Action
-                (
-                    () =>
-                    {
-                        var viewItem = this.FileView.Items[e.Name];
+#if DEBUG
+            Debug.Print($"FSW Change: Name \"{e.Name}\"");
+#endif
 
-                        if (viewItem != null)
-                        {
-                            FileUtility.ScanSingle
-                            (
-                                e.FullPath,
-                                (name, lastWriteTime, attributes) => { FileViewUtility.SetFolder(viewItem, name, lastWriteTime, attributes); },
-                                (name, size, lastWriteTime, attributes) => { FileViewUtility.SetFile(viewItem, name, size, lastWriteTime, attributes); }
-                            );
-                        }
-                        else
-                        {
-                            FileUtility.ScanSingle
-                            (
-                                e.FullPath,
-                                (name, lastWriteTime, attributes) => { FileViewUtility.AddFolder(this.FileView, name, lastWriteTime, attributes); },
-                                (name, size, lastWriteTime, attributes) => { FileViewUtility.AddFile(this.FileView, name, size, lastWriteTime, attributes); }
-                            );
-                        }
-                    }
-                )
-            );
+            FileSystemWatcherDictionary[e.Name] = 1;
         }
 
         private void FileSystemWatcher_OnCreated(object source, FileSystemEventArgs e)
         {
-            this.FileSystemWatcherQueue.Enqueue
-            (
-                new Action
-                (
-                    () =>
-                    {
-                        var viewItem = this.FileView.Items[e.Name];
+#if DEBUG
+            Debug.Print($"FSW Create: Name \"{e.Name}\"");
+#endif
 
-                        if (viewItem != null)
-                        {
-                            FileUtility.ScanSingle
-                            (
-                                e.FullPath,
-                                (name, lastWriteTime, attributes) => { FileViewUtility.SetFolder(viewItem, name, lastWriteTime, attributes); },
-                                (name, size, lastWriteTime, attributes) => { FileViewUtility.SetFile(viewItem, name, size, lastWriteTime, attributes); }
-                            );
-                        }
-                        else
-                        { 
-                            FileUtility.ScanSingle
-                            (
-                                e.FullPath,
-                                (name, lastWriteTime, attributes) => { FileViewUtility.AddFolder(this.FileView, name, lastWriteTime, attributes); },
-                                (name, size, lastWriteTime, attributes) => { FileViewUtility.AddFile(this.FileView, name, size, lastWriteTime, attributes); }
-                            );
-                        }
-                    }
-                )
-            );
+            FileSystemWatcherDictionary[e.Name] = 1;
         }
 
         private void FileSystemWatcher_OnDeleted(object source, FileSystemEventArgs e)
         {
-            this.FileSystemWatcherQueue.Enqueue
-            (
-                new Action
-                (
-                    () =>
-                    {
-                        if (!FileUtility.PathExists(e.Name))
-                        {
-                            this.FileView.Items.RemoveByKey(e.Name);
-                        }
-                    }
-                )
-            );
+#if DEBUG
+            Debug.Print($"FSW Delete: Name \"{e.Name}\"");
+#endif
+
+            FileSystemWatcherDictionary[e.Name] = 1;
         }
 
         private void FileSystemWatcher_OnRenamed(object source, RenamedEventArgs e)
         {
-            this.FileSystemWatcherQueue.Enqueue
-            (
-                new Action
-                (
-                    () =>
-                    {
-                        var oldViewItem = this.FileView.Items[e.OldName];
+#if DEBUG
+            Debug.Print($"FSW Rename: OldName \"{e.OldName}\" NewName \"{e.Name}\"");
+#endif
 
-                        if (oldViewItem != null)
-                        {
-                            FileViewUtility.Rename(oldViewItem, e.Name);
-                        }
-                        else
-                        {
-                            var viewItem = this.FileView.Items[e.Name];
-
-                            if (viewItem != null)
-                            {
-                                FileUtility.ScanSingle
-                                (
-                                    e.FullPath,
-                                    (name, lastWriteTime, attributes) => { FileViewUtility.SetFolder(viewItem, name, lastWriteTime, attributes); },
-                                    (name, size, lastWriteTime, attributes) => { FileViewUtility.SetFile(viewItem, name, size, lastWriteTime, attributes); }
-                                );
-                            }
-                            else
-                            {
-                                FileUtility.ScanSingle
-                                (
-                                    e.FullPath,
-                                    (name, lastWriteTime, attributes) => { FileViewUtility.AddFolder(this.FileView, name, lastWriteTime, attributes); },
-                                    (name, size, lastWriteTime, attributes) => { FileViewUtility.AddFile(this.FileView, name, size, lastWriteTime, attributes); }
-                                );
-                            }
-                        }
-                    }
-                )
-            );
+            FileSystemWatcherDictionary[e.OldName] = 1;
+            FileSystemWatcherDictionary[e.Name] = 1;
         }
 
         private void FileView_ColumnClick(object sender, ColumnClickEventArgs e)
@@ -1269,11 +1073,11 @@ namespace LightFileExplorer
                                     {
                                         var exceptions = new List<Exception>();
 
-                                        foreach (var element in asyncOperationParameter)
+                                        foreach (var item in asyncOperationParameter)
                                         {
                                             try
                                             {
-                                                FileUtility.CopyPath(element.Item1, element.Item2);
+                                                FileUtility.CopyPath(item.Item1, item.Item2, FileUtility.GetAttributes(item.Item1));
                                             }
                                             catch (Exception ex)
                                             {
@@ -1300,11 +1104,11 @@ namespace LightFileExplorer
                                     {
                                         var exceptions = new List<Exception>();
 
-                                        foreach (var element in asyncOperationParameter)
+                                        foreach (var item in asyncOperationParameter)
                                         {
                                             try
                                             {
-                                                FileUtility.MovePath(element.Item1, element.Item2);
+                                                FileUtility.MovePath(item.Item1, item.Item2);
                                             }
                                             catch (Exception ex)
                                             {
@@ -1360,6 +1164,21 @@ namespace LightFileExplorer
         {
             switch (e.KeyCode)
             {
+                case Keys.Apps:
+
+                    if (this.FileView.SelectedItems.Count > 0)
+                    {
+                        var firstItemPosition = this.FileView.SelectedItems[0].Position;
+
+                        new ShellContextMenu().ShowContextMenu(this.CurrentPath, this.FileView.SelectedItems.Cast<ListViewItem>().Select(x => x.Name).ToList(), new Point(this.Location.X + Math.Max(firstItemPosition.X, 4) + 64, this.Location.Y + Math.Max(firstItemPosition.Y, 24) + 64));
+                    }
+
+                    e.SuppressKeyPress = true;
+
+                    e.Handled = true;
+
+                    break;
+
                 case Keys.Back:
                 case Keys.Left:
 
@@ -1513,9 +1332,24 @@ namespace LightFileExplorer
             MessageBox.Show($"A simple file explorer, written just for fun. (v. {Application.ProductVersion})", "About", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
+        private void HelpProjectPageToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Process.Start("https://github.com/mayakron/lightfileexplorer");
+        }
+
         private void MainWindow_FormClosed(object sender, FormClosedEventArgs e)
         {
-            // If there's anything that needs clean up before exiting, this is the right place to do it.
+            if (this.FileSystemWatcher != null)
+            {
+                this.FileSystemWatcher.Changed -= FileSystemWatcher_OnChanged;
+                this.FileSystemWatcher.Created -= FileSystemWatcher_OnCreated;
+                this.FileSystemWatcher.Deleted -= FileSystemWatcher_OnDeleted;
+                this.FileSystemWatcher.Renamed -= FileSystemWatcher_OnRenamed;
+
+                this.FileSystemWatcher.Dispose();
+
+                this.FileSystemWatcher = null;
+            }
         }
 
         private void MainWindow_FormClosing(object sender, FormClosingEventArgs e)
@@ -1533,7 +1367,12 @@ namespace LightFileExplorer
         {
             if (this.FileSystemWatcher != null)
             {
-                while (this.FileSystemWatcherQueue.TryDequeue(out _)) { }
+                this.FileSystemWatcher.Changed -= FileSystemWatcher_OnChanged;
+                this.FileSystemWatcher.Created -= FileSystemWatcher_OnCreated;
+                this.FileSystemWatcher.Deleted -= FileSystemWatcher_OnDeleted;
+                this.FileSystemWatcher.Renamed -= FileSystemWatcher_OnRenamed;
+
+                this.FileSystemWatcherDictionary.Clear();
 
                 this.FileSystemWatcher.Dispose();
 
@@ -1584,7 +1423,7 @@ namespace LightFileExplorer
                     {
                         this.FileView.Items.Clear();
 
-                        FileUtility.ScanMany
+                        FileUtility.ScanMultipleItems
                         (
                             this.CurrentPath,
                             (name, lastWriteTime, attributes) => { FileViewUtility.AddFolder(this.FileView, name, lastWriteTime, attributes); },
@@ -1768,7 +1607,7 @@ namespace LightFileExplorer
 
         private void StatusStrip_UpdateMessage(string message = null, bool forceRefresh = false)
         {
-            this.StatusStripMessageLabel.Text = message ?? $"{this.FileView.Items.Count} items (ordered by {((IHasName)this.FileView.ListViewItemSorter).Name}), {this.FileView.SelectedItems.Count} selected.";
+            this.StatusStripMessageLabel.Text = message ?? $"{this.FileView.Items.Count} items ordered by {((IHasName)this.FileView.ListViewItemSorter).Name}, {this.FileView.SelectedItems.Count} selected.";
 
             if (forceRefresh)
             {
@@ -1778,39 +1617,85 @@ namespace LightFileExplorer
 
         private void Timer_Tick(object sender, EventArgs e)
         {
-            if (this.FileSystemWatcherQueue.IsEmpty)
+            if (!(this.FileSystemWatcherDictionary.Count > 0))
             {
                 return;
             }
 
             try
             {
-                this.FileView.BeginUpdate();
-
                 try
                 {
-                    while (this.FileSystemWatcherQueue.TryDequeue(out var action))
+                    this.FileView.BeginUpdate();
+
+                    try
                     {
-                        try
+                        foreach (var key in this.FileSystemWatcherDictionary.Keys)
                         {
-                            action();
+                            if (this.FileSystemWatcherDictionary.TryRemove(key, out byte _))
+                            {
+                                var viewItem = this.FileView.Items[key];
+
+                                if (viewItem != null)
+                                {
+#if DEBUG
+                                    Debug.Print($"TMR Change: Name \"{key}\"");
+#endif
+
+                                    if
+                                    (
+                                        !FileUtility.ScanSingleItem
+                                        (
+                                            key,
+                                            (name, lastWriteTime, attributes) => { FileViewUtility.SetFolder(viewItem, name, lastWriteTime, attributes); },
+                                            (name, size, lastWriteTime, attributes) => { FileViewUtility.SetFile(viewItem, name, size, lastWriteTime, attributes); }
+                                        )
+                                    )
+                                    {
+#if DEBUG
+                                        Debug.Print($"TMR Delete: Name \"{key}\"");
+#endif
+
+                                        this.FileView.Items.RemoveByKey(key);
+                                    }
+                                }
+                                else
+                                {
+#if DEBUG
+                                    Debug.Print($"TMR Create: Name \"{key}\"");
+#endif
+
+                                    if
+                                    (
+                                        !FileUtility.ScanSingleItem
+                                        (
+                                            key,
+                                            (name, lastWriteTime, attributes) => { FileViewUtility.AddFolder(this.FileView, name, lastWriteTime, attributes); },
+                                            (name, size, lastWriteTime, attributes) => { FileViewUtility.AddFile(this.FileView, name, size, lastWriteTime, attributes); }
+                                        )
+                                    )
+                                    {
+#if DEBUG
+                                        Debug.Print($"TMR Forget: Name \"{key}\"");
+#endif
+                                    }
+                                }
+                            }
                         }
-                        catch
-                        {
-                        }
+                    }
+                    finally
+                    {
+                        this.FileView.EndUpdate();
                     }
                 }
                 finally
                 {
-                    this.FileView.EndUpdate();
+                    this.StatusStrip_UpdateMessage();
                 }
             }
-            catch
+            catch (Exception ex)
             {
-            }
-            finally
-            {
-                this.StatusStrip_UpdateMessage();
+                this.MainWindow_ReportError(ex);
             }
         }
 
@@ -1860,6 +1745,41 @@ namespace LightFileExplorer
             {
                 this.MainWindow_ReportError(ex);
             }
+        }
+
+        private void ViewSortAttributesToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this.FileView.ListViewItemSorter = this.FileViewColumnAttributesSorter;
+
+            this.StatusStrip_UpdateMessage();
+        }
+
+        private void ViewSortExtensionToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this.FileView.ListViewItemSorter = this.FileViewColumnExtensionSorter;
+
+            this.StatusStrip_UpdateMessage();
+        }
+
+        private void ViewSortLastModifiedToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this.FileView.ListViewItemSorter = this.FileViewColumnLastModifiedSorter;
+
+            this.StatusStrip_UpdateMessage();
+        }
+
+        private void ViewSortNameToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this.FileView.ListViewItemSorter = this.FileViewColumnNameSorter;
+
+            this.StatusStrip_UpdateMessage();
+        }
+
+        private void ViewSortSizeToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this.FileView.ListViewItemSorter = this.FileViewColumnSizeSorter;
+
+            this.StatusStrip_UpdateMessage();
         }
     }
 }
