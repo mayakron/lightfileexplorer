@@ -546,37 +546,37 @@
             this.ToolsLightFileExplorerHereToolStripMenuItem.Name = "ToolsLightFileExplorerHereToolStripMenuItem";
             this.ToolsLightFileExplorerHereToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.L)));
             this.ToolsLightFileExplorerHereToolStripMenuItem.Size = new System.Drawing.Size(249, 22);
-            this.ToolsLightFileExplorerHereToolStripMenuItem.Text = "Light File Explorer Here";
-            this.ToolsLightFileExplorerHereToolStripMenuItem.Click += new System.EventHandler(this.ToolsLightFileExplorerHereToolStripMenuItem_Click);
+            this.ToolsLightFileExplorerHereToolStripMenuItem.Text = "Light File Explorer";
+            this.ToolsLightFileExplorerHereToolStripMenuItem.Click += new System.EventHandler(this.ToolsLightFileExplorerToolStripMenuItem_Click);
             // 
             // ToolStripMenuItemSeparator3
             // 
             this.ToolStripMenuItemSeparator3.Name = "ToolStripMenuItemSeparator3";
             this.ToolStripMenuItemSeparator3.Size = new System.Drawing.Size(246, 6);
             // 
-            // ToolsFileExplorerHereToolStripMenuItem
+            // ToolsFileExplorerToolStripMenuItem
             // 
             this.ToolsFileExplorerHereToolStripMenuItem.Name = "ToolsFileExplorerHereToolStripMenuItem";
             this.ToolsFileExplorerHereToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.E)));
             this.ToolsFileExplorerHereToolStripMenuItem.Size = new System.Drawing.Size(249, 22);
-            this.ToolsFileExplorerHereToolStripMenuItem.Text = "File Explorer Here";
-            this.ToolsFileExplorerHereToolStripMenuItem.Click += new System.EventHandler(this.ToolsFileExplorerHereToolStripMenuItem_Click);
+            this.ToolsFileExplorerHereToolStripMenuItem.Text = "File Explorer";
+            this.ToolsFileExplorerHereToolStripMenuItem.Click += new System.EventHandler(this.ToolsFileExplorerToolStripMenuItem_Click);
             // 
-            // ToolsCommandPromptHereToolStripMenuItem
+            // ToolsCommandPromptToolStripMenuItem
             // 
             this.ToolsCommandPromptHereToolStripMenuItem.Name = "ToolsCommandPromptHereToolStripMenuItem";
             this.ToolsCommandPromptHereToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.M)));
             this.ToolsCommandPromptHereToolStripMenuItem.Size = new System.Drawing.Size(249, 22);
-            this.ToolsCommandPromptHereToolStripMenuItem.Text = "Command Prompt Here";
-            this.ToolsCommandPromptHereToolStripMenuItem.Click += new System.EventHandler(this.ToolsCommandPromptHereToolStripMenuItem_Click);
+            this.ToolsCommandPromptHereToolStripMenuItem.Text = "Command Prompt";
+            this.ToolsCommandPromptHereToolStripMenuItem.Click += new System.EventHandler(this.ToolsCommandPromptToolStripMenuItem_Click);
             // 
-            // ToolsPowerShellConsoleHereToolStripMenuItem
+            // ToolsPowerShellConsoleToolStripMenuItem
             // 
             this.ToolsPowerShellConsoleHereToolStripMenuItem.Name = "ToolsPowerShellConsoleHereToolStripMenuItem";
             this.ToolsPowerShellConsoleHereToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.H)));
             this.ToolsPowerShellConsoleHereToolStripMenuItem.Size = new System.Drawing.Size(249, 22);
-            this.ToolsPowerShellConsoleHereToolStripMenuItem.Text = "PowerShell Console Here";
-            this.ToolsPowerShellConsoleHereToolStripMenuItem.Click += new System.EventHandler(this.ToolsPowerShellConsoleHereToolStripMenuItem_Click);
+            this.ToolsPowerShellConsoleHereToolStripMenuItem.Text = "PowerShell Console";
+            this.ToolsPowerShellConsoleHereToolStripMenuItem.Click += new System.EventHandler(this.ToolsPowerShellConsoleToolStripMenuItem_Click);
             // 
             // ViewToolStripMenuItem
             // 

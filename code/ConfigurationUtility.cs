@@ -9,6 +9,8 @@ namespace LightFileExplorer
     {
         public static readonly string BinaryViewer = ConfigurationManager.AppSettings["BinaryViewer"];
 
+        public static readonly List<Tuple<string, string>> CustomTools = ConfigurationManager.AppSettings["CustomTools"]?.Split('|').Select(x => x.Split('>')).Select(x => new Tuple<string, string>(x[0], x[1])).ToList();
+
         public static readonly List<Tuple<string, string>> GotoFavorites = ConfigurationManager.AppSettings["GotoFavorites"]?.Split('|').Select(x => x.Split('>')).Select(x => new Tuple<string, string>(x[0], x[1])).ToList();
 
         public static readonly List<Tuple<string, string>> OpenWith = ConfigurationManager.AppSettings["OpenWith"]?.Split('|').Select(x => x.Split('>')).Select(x => new Tuple<string, string>(x[0], x[1])).ToList();

@@ -129,7 +129,27 @@ namespace LightFileExplorer
 
                 return menuItem;
             }
-            ;
+
+            ToolStripMenuItem CreateToolsCustomToolMenuItem(string text, string path)
+            {
+                var menuItem = new ToolStripMenuItem();
+
+                menuItem.Text = text;
+
+                menuItem.Click += (sender, e) =>
+                {
+                    try
+                    {
+                        Process.Start(new ProcessStartInfo { FileName = path, WorkingDirectory = this.CurrentPath, UseShellExecute = true });
+                    }
+                    catch (Exception ex)
+                    {
+                        this.MainWindow_ReportError(ex);
+                    }
+                };
+
+                return menuItem;
+            }
 
             InitializeComponent();
 
@@ -191,6 +211,47 @@ namespace LightFileExplorer
                     var item = ConfigurationUtility.GotoFavorites[index];
 
                     this.GotoToolStripMenuItem.DropDownItems.Add(CreateGotoKnownFolderMenuItem(item.Item1, item.Item2, GetDigitShortcutKeys(Keys.Control, index)));
+                }
+            }
+
+            if ((ConfigurationUtility.CustomTools != null) && (ConfigurationUtility.CustomTools.Count > 0))
+            {
+                this.ToolsToolStripMenuItem.DropDownItems.Add(new ToolStripSeparator());
+
+                ToolStripMenuItem parentMenuItem = null;
+
+                for (int index = 0; index < ConfigurationUtility.CustomTools.Count; index++)
+                {
+                    var item = ConfigurationUtility.CustomTools[index];
+
+                    var splitMatch = Regex.Match(item.Item1, "^([^:]+):(.*)$", RegexOptions.None);
+
+                    if (splitMatch.Success)
+                    {
+                        var part1 = splitMatch.Groups[1].Value;
+                        var part2 = splitMatch.Groups[2].Value;
+
+                        if ((parentMenuItem != null) && (parentMenuItem.Text.Equals(part1)))
+                        {
+                            parentMenuItem.DropDownItems.Add(CreateToolsCustomToolMenuItem(part2, item.Item2));
+                        }
+                        else
+                        {
+                            parentMenuItem = new ToolStripMenuItem();
+
+                            parentMenuItem.Text = part1;
+
+                            parentMenuItem.DropDownItems.Add(CreateToolsCustomToolMenuItem(part2, item.Item2));
+
+                            this.ToolsToolStripMenuItem.DropDownItems.Add(parentMenuItem);
+                        }
+                    }
+                    else
+                    {
+                        parentMenuItem = null;
+
+                        this.ToolsToolStripMenuItem.DropDownItems.Add(CreateToolsCustomToolMenuItem(item.Item1, item.Item2));
+                    }
                 }
             }
         }
@@ -1699,7 +1760,7 @@ namespace LightFileExplorer
             }
         }
 
-        private void ToolsCommandPromptHereToolStripMenuItem_Click(object sender, EventArgs e)
+        private void ToolsCommandPromptToolStripMenuItem_Click(object sender, EventArgs e)
         {
             try
             {
@@ -1711,7 +1772,7 @@ namespace LightFileExplorer
             }
         }
 
-        private void ToolsFileExplorerHereToolStripMenuItem_Click(object sender, EventArgs e)
+        private void ToolsFileExplorerToolStripMenuItem_Click(object sender, EventArgs e)
         {
             try
             {
@@ -1723,7 +1784,7 @@ namespace LightFileExplorer
             }
         }
 
-        private void ToolsLightFileExplorerHereToolStripMenuItem_Click(object sender, EventArgs e)
+        private void ToolsLightFileExplorerToolStripMenuItem_Click(object sender, EventArgs e)
         {
             try
             {
@@ -1735,7 +1796,7 @@ namespace LightFileExplorer
             }
         }
 
-        private void ToolsPowerShellConsoleHereToolStripMenuItem_Click(object sender, EventArgs e)
+        private void ToolsPowerShellConsoleToolStripMenuItem_Click(object sender, EventArgs e)
         {
             try
             {
