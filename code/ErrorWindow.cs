@@ -78,7 +78,10 @@ namespace LightFileExplorer
 
         private void MyCopyButton_Click(object sender, EventArgs e)
         {
-            Clipboard.SetText(this.ErrorTextBox.Text);
+            if (!string.IsNullOrEmpty(this.ErrorTextBox.Text))
+            {
+                Clipboard.SetText(this.ErrorTextBox.Text);
+            }
         }
     }
 }

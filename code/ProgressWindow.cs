@@ -19,6 +19,8 @@ namespace LightFileExplorer
 
         private void MyAbortButton_Click(object sender, EventArgs e)
         {
+            // By allowing the user to abort the operation, we accept that some files and directories can end up in partially consistent state.
+
             if (this.workerThread != null)
             {
                 if (this.workerThread.IsAlive)

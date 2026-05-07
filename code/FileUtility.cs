@@ -6,12 +6,15 @@ namespace LightFileExplorer
 {
     /*
      * A note on junctions:
-     * 
+     *
      * When copying items it is expected that junctions are followed (i.e. dereferenced, with target files and folders copied to the destination) and therefore not preserved as junctions.
      * When moving or deleting items it is expected that junctions are moved or deleted as junctions and not followed.
      */
+
     internal static class FileUtility
     {
+        private static readonly Regex ReservedNameRegex = new Regex("^AUX|COM[1-9]|CON|LPT[1-9]|NUL|PRN$", RegexOptions.IgnoreCase);
+
         private static readonly Regex ValidNameRegex = new Regex("^[^\\\\/:*?\"<>|]+$");
 
         private static readonly Regex ValidPathRegex = new Regex("^[A-Za-z]:\\\\[^:*?\"<>|]*$");
@@ -42,7 +45,7 @@ namespace LightFileExplorer
             {
                 var findHandle = WindowsApi.FindFirstFile(path + @"\*.*", out WindowsApi.WIN32_FIND_DATA findData);
 
-                if (findHandle.ToInt64() <= 0)
+                if (findHandle == WindowsApi.INVALID_HANDLE_VALUE)
                 {
                     throw new Exception($"Cannot access the \"{path}\" path.");
                 }
@@ -75,7 +78,7 @@ namespace LightFileExplorer
 
             if (attributes.HasFlag(FileAttributes.ReadOnly))
             {
-                File.SetAttributes(path, FileAttributes.Normal);
+                File.SetAttributes(path, attributes & ~FileAttributes.ReadOnly);
             }
 
             Directory.Delete(path, false);
@@ -118,7 +121,7 @@ namespace LightFileExplorer
 
         public static bool IsValidName(string name)
         {
-            return ValidNameRegex.IsMatch(name);
+            return ValidNameRegex.IsMatch(name) && !ReservedNameRegex.IsMatch(name);
         }
 
         public static bool IsValidPath(string path)
@@ -155,7 +158,7 @@ namespace LightFileExplorer
         {
             var findHandle = WindowsApi.FindFirstFile(path + @"\*.*", out WindowsApi.WIN32_FIND_DATA findData);
 
-            if (findHandle.ToInt64() <= 0)
+            if (findHandle == WindowsApi.INVALID_HANDLE_VALUE)
             {
                 if (ignoreAccessExceptions) return false; else throw new Exception($"Cannot access the \"{path}\" path.");
             }
@@ -194,7 +197,7 @@ namespace LightFileExplorer
         {
             var findHandle = WindowsApi.FindFirstFile(path, out WindowsApi.WIN32_FIND_DATA findData);
 
-            if (findHandle.ToInt64() <= 0)
+            if (findHandle == WindowsApi.INVALID_HANDLE_VALUE)
             {
                 if (ignoreAccessExceptions) return false; else throw new Exception($"Cannot access the \"{path}\" path.");
             }
@@ -226,7 +229,7 @@ namespace LightFileExplorer
         {
             if (!IsValidName(name))
             {
-                throw new Exception("A name cannot contain any of these characters: \\ / : * ? < > |");
+                throw new Exception("A name cannot be a Windows reserved name and cannot contain any of these characters: \\ / : * ? < > |");
             }
         }
 

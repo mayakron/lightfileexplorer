@@ -41,7 +41,7 @@ namespace LightFileExplorer
 
         private void MyOkButton_Click(object sender, EventArgs e)
         {
-            this.SelectedPath = this.PathTextBox.Text;
+            this.SelectedPath = this.PathTextBox.Text.Trim();
 
             this.DialogResult = DialogResult.OK;
         }

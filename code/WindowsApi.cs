@@ -10,6 +10,8 @@ namespace LightFileExplorer
 
         internal const uint LVM_SETTEXTBKCOLOR = 0x1026;
 
+        internal static readonly IntPtr INVALID_HANDLE_VALUE = new IntPtr(-1);
+
         [DllImport("Kernel32", SetLastError = true)]
         internal static extern bool FindClose(IntPtr hFindFile);
 
@@ -28,7 +30,7 @@ namespace LightFileExplorer
         [DllImport("User32", CharSet = CharSet.Unicode, SetLastError = true)]
         internal static extern IntPtr LoadIcon(IntPtr handle, IntPtr iconName);
 
-        [DllImport("ShlwApi", CharSet = CharSet.Auto, SetLastError = true)]
+        [DllImport("ShlwApi", CharSet = CharSet.Unicode, SetLastError = true)]
         internal static extern bool PathFileExists(string path);
 
         [DllImport("User32", CharSet = CharSet.Unicode, SetLastError = true)]
@@ -38,7 +40,7 @@ namespace LightFileExplorer
         internal static extern bool SetFileAttributes(string fileName, FileAttributes fileAttributes);
 
         [BestFitMapping(false)]
-        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
+        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
         internal struct WIN32_FIND_DATA
         {
             internal FileAttributes dwFileAttributes;

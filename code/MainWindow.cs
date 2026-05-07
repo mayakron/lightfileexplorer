@@ -671,7 +671,7 @@ namespace LightFileExplorer
                         {
                             this.FileView.SelectedItems.Clear();
 
-                            FileViewUtility.MoveTo(FileViewUtility.AddFolder(this.FileView, folderName, DateTime.Now, FileAttributes.Normal));
+                            FileViewUtility.MoveTo(this.FileView.Items.Add(FileViewUtility.BuildFolder(folderName, DateTime.Now, FileAttributes.Normal)));
                         }
                         finally
                         {
@@ -720,7 +720,7 @@ namespace LightFileExplorer
                         {
                             this.FileView.SelectedItems.Clear();
 
-                            FileViewUtility.MoveTo(FileViewUtility.AddFile(this.FileView, shortcutName, 0, DateTime.Now, FileAttributes.Normal));
+                            FileViewUtility.MoveTo(this.FileView.Items.Add(FileViewUtility.BuildFile(shortcutName, 0, DateTime.Now, FileAttributes.Normal)));
                         }
                         finally
                         {
@@ -745,6 +745,8 @@ namespace LightFileExplorer
                     {
                         foreach (ListViewItem viewItem in this.FileView.SelectedItems)
                         {
+                            // If more than one item is selected, directories get silently ignored. Is this the best way to handle the situation?
+
                             if (!FileViewUtility.IsDirectory(viewItem))
                             {
                                 Process.Start(new ProcessStartInfo { FileName = Path.Combine(this.CurrentPath, viewItem.Name), WorkingDirectory = this.CurrentPath, UseShellExecute = true });
@@ -804,14 +806,9 @@ namespace LightFileExplorer
 
                         if (fileDropEffectData != null)
                         {
-                            if (fileDropEffectData is MemoryStream)
+                            if (fileDropEffectData is MemoryStream fileDropEffectStream)
                             {
-                                byte[] fileDropEffectDataBytes;
-
-                                using (var memoryStream = fileDropEffectData as MemoryStream)
-                                {
-                                    fileDropEffectDataBytes = memoryStream.ToArray();
-                                }
+                                var fileDropEffectDataBytes = fileDropEffectStream.ToArray();
 
                                 if ((fileDropEffectDataBytes.Length >= 4) && (fileDropEffectDataBytes[0] == 2) && (fileDropEffectDataBytes[1] == 0) && (fileDropEffectDataBytes[2] == 0) && (fileDropEffectDataBytes[3] == 0))
                                 {
@@ -822,7 +819,7 @@ namespace LightFileExplorer
 
                         switch (fileDropEffect)
                         {
-                            case 1:
+                            case 1: // Copy.
 
                                 this.MainWindow_RunAsyncOperation
                                 (
@@ -853,7 +850,7 @@ namespace LightFileExplorer
 
                                 break;
 
-                            case 2:
+                            case 2: // Move.
 
                                 this.MainWindow_RunAsyncOperation
                                 (
@@ -1038,7 +1035,7 @@ namespace LightFileExplorer
             Debug.Print($"FSW Change: Name \"{e.Name}\"");
 #endif
 
-            FileSystemWatcherDictionary[e.Name] = 1;
+            FileSystemWatcherDictionary.TryAdd(e.Name, 1);
         }
 
         private void FileSystemWatcher_OnCreated(object source, FileSystemEventArgs e)
@@ -1047,7 +1044,7 @@ namespace LightFileExplorer
             Debug.Print($"FSW Create: Name \"{e.Name}\"");
 #endif
 
-            FileSystemWatcherDictionary[e.Name] = 1;
+            FileSystemWatcherDictionary.TryAdd(e.Name, 1);
         }
 
         private void FileSystemWatcher_OnDeleted(object source, FileSystemEventArgs e)
@@ -1056,7 +1053,7 @@ namespace LightFileExplorer
             Debug.Print($"FSW Delete: Name \"{e.Name}\"");
 #endif
 
-            FileSystemWatcherDictionary[e.Name] = 1;
+            FileSystemWatcherDictionary.TryAdd(e.Name, 1);
         }
 
         private void FileSystemWatcher_OnRenamed(object source, RenamedEventArgs e)
@@ -1065,8 +1062,8 @@ namespace LightFileExplorer
             Debug.Print($"FSW Rename: OldName \"{e.OldName}\" NewName \"{e.Name}\"");
 #endif
 
-            FileSystemWatcherDictionary[e.OldName] = 1;
-            FileSystemWatcherDictionary[e.Name] = 1;
+            FileSystemWatcherDictionary.TryAdd(e.OldName, 1);
+            FileSystemWatcherDictionary.TryAdd(e.Name, 1);
         }
 
         private void FileView_ColumnClick(object sender, ColumnClickEventArgs e)
@@ -1201,7 +1198,7 @@ namespace LightFileExplorer
         {
             try
             {
-                if (e.Data.GetDataPresent(DataFormats.FileDrop)) e.Effect = DragDropEffects.Copy; else e.Effect = DragDropEffects.None;
+                e.Effect = e.Data.GetDataPresent(DataFormats.FileDrop) ? ((e.KeyState & 4) != 0 ? DragDropEffects.Move : DragDropEffects.Copy) & e.AllowedEffect : DragDropEffects.None;
             }
             catch (Exception ex)
             {
@@ -1213,7 +1210,7 @@ namespace LightFileExplorer
         {
             try
             {
-                this.DoDragDrop(new DataObject(DataFormats.FileDrop, this.FileView.SelectedItems.Cast<ListViewItem>().Select(x => Path.Combine(this.CurrentPath, x.Name)).ToArray()), DragDropEffects.Copy);
+                this.DoDragDrop(new DataObject(DataFormats.FileDrop, this.FileView.SelectedItems.Cast<ListViewItem>().Select(x => Path.Combine(this.CurrentPath, x.Name)).ToArray()), DragDropEffects.Copy | DragDropEffects.Move);
             }
             catch (Exception ex)
             {
@@ -1353,7 +1350,7 @@ namespace LightFileExplorer
         {
             try
             {
-                if (this.CurrentPath.Length > 3)
+                if (!string.Equals(Path.GetPathRoot(this.CurrentPath).TrimEnd(Path.DirectorySeparatorChar), this.CurrentPath.TrimEnd(Path.DirectorySeparatorChar), StringComparison.OrdinalIgnoreCase))
                 {
                     this.MainWindow_GotoFolder(Path.GetDirectoryName(this.CurrentPath), true);
                 }
@@ -1390,18 +1387,27 @@ namespace LightFileExplorer
 
         private void HelpAboutToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            MessageBox.Show($"A simple file explorer, written just for fun. (v. {Application.ProductVersion})", "About", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show($"A file explorer application designed for speed. (v. {Application.ProductVersion})", "About", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         private void HelpProjectPageToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Process.Start("https://github.com/mayakron/lightfileexplorer");
+            try
+            {
+                Process.Start("https://github.com/mayakron/lightfileexplorer");
+            }
+            catch (Exception ex)
+            {
+                this.MainWindow_ReportError(ex);
+            }
         }
 
         private void MainWindow_FormClosed(object sender, FormClosedEventArgs e)
         {
             if (this.FileSystemWatcher != null)
             {
+                this.FileSystemWatcher.EnableRaisingEvents = false;
+
                 this.FileSystemWatcher.Changed -= FileSystemWatcher_OnChanged;
                 this.FileSystemWatcher.Created -= FileSystemWatcher_OnCreated;
                 this.FileSystemWatcher.Deleted -= FileSystemWatcher_OnDeleted;
@@ -1410,6 +1416,8 @@ namespace LightFileExplorer
                 this.FileSystemWatcher.Dispose();
 
                 this.FileSystemWatcher = null;
+
+                this.FileSystemWatcherDictionary.Clear();
             }
         }
 
@@ -1424,27 +1432,29 @@ namespace LightFileExplorer
             }
         }
 
-        private void MainWindow_GotoFolder(string path, bool isGoingToParentFolder = false, bool isRefreshingSameFolder = false)
+        private void MainWindow_GotoFolder(string path, bool goingToParentFolder = false, bool refreshingCurrentFolder = false)
         {
             if (this.FileSystemWatcher != null)
             {
+                this.FileSystemWatcher.EnableRaisingEvents = false;
+
                 this.FileSystemWatcher.Changed -= FileSystemWatcher_OnChanged;
                 this.FileSystemWatcher.Created -= FileSystemWatcher_OnCreated;
                 this.FileSystemWatcher.Deleted -= FileSystemWatcher_OnDeleted;
                 this.FileSystemWatcher.Renamed -= FileSystemWatcher_OnRenamed;
 
-                this.FileSystemWatcherDictionary.Clear();
-
                 this.FileSystemWatcher.Dispose();
 
                 this.FileSystemWatcher = null;
+
+                this.FileSystemWatcherDictionary.Clear();
             }
 
             string selectedViewItemName = null;
 
-            if (!string.Equals(this.CurrentPath, path, StringComparison.CurrentCultureIgnoreCase))
+            if (!string.Equals(this.CurrentPath, path, StringComparison.OrdinalIgnoreCase))
             {
-                if (isGoingToParentFolder)
+                if (goingToParentFolder)
                 {
                     selectedViewItemName = Path.GetFileName(this.CurrentPath);
                 }
@@ -1455,9 +1465,13 @@ namespace LightFileExplorer
             }
             else
             {
-                if (isRefreshingSameFolder)
+                if (refreshingCurrentFolder)
                 {
-                    if (this.FileView.SelectedItems.Count > 0)
+                    // With one selected item we keep the selection, while with more than one we loose it.
+                    // Also, we do not try to keep the top item in place due to the complexity of that.
+                    // This is consistent with how Windows Explorer behaves.
+
+                    if (this.FileView.SelectedItems.Count == 1)
                     {
                         var viewItem = this.FileView.SelectedItems[0];
 
@@ -1487,8 +1501,8 @@ namespace LightFileExplorer
                         FileUtility.ScanMultipleItems
                         (
                             this.CurrentPath,
-                            (name, lastWriteTime, attributes) => { FileViewUtility.AddFolder(this.FileView, name, lastWriteTime, attributes); },
-                            (name, size, lastWriteTime, attributes) => { FileViewUtility.AddFile(this.FileView, name, size, lastWriteTime, attributes); }
+                            (name, lastWriteTime, attributes) => { this.FileView.Items.Add(FileViewUtility.BuildFolder(name, lastWriteTime, attributes)); },
+                            (name, size, lastWriteTime, attributes) => { this.FileView.Items.Add(FileViewUtility.BuildFile(name, size, lastWriteTime, attributes)); }
                         );
                     }
                     finally
@@ -1518,7 +1532,7 @@ namespace LightFileExplorer
 
             this.FileSystemWatcher = new FileSystemWatcher(this.CurrentPath)
             {
-                InternalBufferSize = 32768,
+                InternalBufferSize = 32768
             };
 
             this.FileSystemWatcher.NotifyFilter = NotifyFilters.Attributes | NotifyFilters.CreationTime | NotifyFilters.DirectoryName | NotifyFilters.FileName | NotifyFilters.LastWrite | NotifyFilters.Size;
@@ -1598,7 +1612,7 @@ namespace LightFileExplorer
 
                         if (!workerThread.Join(ProgressWindowWaitTime))
                         {
-                            var progressWindow = new ProgressWindow(this, description, workerThread);
+                            ProgressWindow progressWindow = null;
 
                             this.Invoke
                             (
@@ -1606,7 +1620,9 @@ namespace LightFileExplorer
                                 (
                                     () =>
                                     {
-                                        progressWindow.Show();
+                                        progressWindow = new ProgressWindow(this, description, workerThread);
+
+                                        progressWindow.Show(this);
                                     }
                                 )
                             );
@@ -1619,7 +1635,13 @@ namespace LightFileExplorer
                                 (
                                     () =>
                                     {
-                                        progressWindow.Close();
+                                        try
+                                        {
+                                            progressWindow.Close();
+                                        }
+                                        catch
+                                        {
+                                        }
                                     }
                                 )
                             );
@@ -1668,7 +1690,7 @@ namespace LightFileExplorer
 
         private void StatusStrip_UpdateMessage(string message = null, bool forceRefresh = false)
         {
-            this.StatusStripMessageLabel.Text = message ?? $"{this.FileView.Items.Count} items ordered by {((IHasName)this.FileView.ListViewItemSorter).Name}, {this.FileView.SelectedItems.Count} selected.";
+            this.StatusStripMessageLabel.Text = message ?? $"{this.FileView.Items.Count} items{((this.FileView.ListViewItemSorter != null) ? $" ordered by {((IHasName)this.FileView.ListViewItemSorter).Name}" : string.Empty)}, {this.FileView.SelectedItems.Count} selected.";
 
             if (forceRefresh)
             {
@@ -1691,8 +1713,10 @@ namespace LightFileExplorer
 
                     try
                     {
-                        foreach (var key in this.FileSystemWatcherDictionary.Keys)
+                        foreach (var item in this.FileSystemWatcherDictionary)
                         {
+                            var key = item.Key;
+
                             if (this.FileSystemWatcherDictionary.TryRemove(key, out byte _))
                             {
                                 var viewItem = this.FileView.Items[key];
@@ -1731,8 +1755,8 @@ namespace LightFileExplorer
                                         !FileUtility.ScanSingleItem
                                         (
                                             key,
-                                            (name, lastWriteTime, attributes) => { FileViewUtility.AddFolder(this.FileView, name, lastWriteTime, attributes); },
-                                            (name, size, lastWriteTime, attributes) => { FileViewUtility.AddFile(this.FileView, name, size, lastWriteTime, attributes); }
+                                            (name, lastWriteTime, attributes) => { this.FileView.Items.Add(FileViewUtility.BuildFolder(name, lastWriteTime, attributes)); },
+                                            (name, size, lastWriteTime, attributes) => { this.FileView.Items.Add(FileViewUtility.BuildFile(name, size, lastWriteTime, attributes)); }
                                         )
                                     )
                                     {

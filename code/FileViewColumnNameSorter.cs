@@ -23,7 +23,7 @@ namespace LightFileExplorer
             {
                 if (b.ImageIndex == 0)
                 {
-                    return string.Compare(a.Text, b.Text, StringComparison.CurrentCultureIgnoreCase);
+                    return string.Compare(a.Text, b.Text, StringComparison.OrdinalIgnoreCase);
                 }
                 else
                 {
@@ -38,7 +38,7 @@ namespace LightFileExplorer
                 }
                 else
                 {
-                    return string.Compare(a.Text, b.Text, StringComparison.CurrentCultureIgnoreCase);
+                    return string.Compare(a.Text, b.Text, StringComparison.OrdinalIgnoreCase);
                 }
             }
         }

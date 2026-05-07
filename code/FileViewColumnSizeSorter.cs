@@ -23,7 +23,7 @@ namespace LightFileExplorer
             {
                 if (b.ImageIndex == 0)
                 {
-                    return string.Compare(a.Text, b.Text, StringComparison.CurrentCultureIgnoreCase);
+                    return string.Compare(a.Text, b.Text, StringComparison.OrdinalIgnoreCase);
                 }
                 else
                 {
@@ -41,7 +41,7 @@ namespace LightFileExplorer
                     var xSize = (ulong)a.SubItems[2].Tag;
                     var ySize = (ulong)b.SubItems[2].Tag;
 
-                    return (xSize > ySize) ? 1 : (ySize > xSize) ? -1 : string.Compare(a.Text, b.Text, StringComparison.CurrentCultureIgnoreCase);
+                    return (xSize > ySize) ? 1 : (ySize > xSize) ? -1 : string.Compare(a.Text, b.Text, StringComparison.OrdinalIgnoreCase);
                 }
             }
         }

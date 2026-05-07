@@ -10,48 +10,42 @@ namespace LightFileExplorer
     {
         private static readonly NumberFormatInfo SizeColumnNumberFormatInfo = new NumberFormatInfo { CurrencyGroupSeparator = " ", NumberGroupSeparator = " ", PercentGroupSeparator = " " };
 
-        public static ListViewItem AddFile(ListView listView, string name, ulong size, DateTime lastWriteTime, FileAttributes attributes)
+        public static ListViewItem BuildFile(string name, ulong size, DateTime lastWriteTime, FileAttributes attributes)
         {
-            return listView.Items.Add
+            return new ListViewItem
             (
-                new ListViewItem
-                (
-                    new[]
-                    {
-                        new ListViewItem.ListViewSubItem { Text = name, Tag = null },
-                        new ListViewItem.ListViewSubItem { Text = Path.GetExtension(name).ToUpperInvariant(), Tag = null },
-                        new ListViewItem.ListViewSubItem { Text = size.ToString("N0", SizeColumnNumberFormatInfo), Tag = size },
-                        new ListViewItem.ListViewSubItem { Text = lastWriteTime.ToString("yyyy-MM-dd HH:mm:ss"), Tag = lastWriteTime },
-                        new ListViewItem.ListViewSubItem { Text = FileAttributesUtility.ToString(attributes), Tag = attributes }
-                    },
-                    1
-                )
+                new[]
                 {
-                    Name = name
-                }
-            );
+                    new ListViewItem.ListViewSubItem { Text = name, Tag = null },
+                    new ListViewItem.ListViewSubItem { Text = Path.GetExtension(name).ToUpperInvariant(), Tag = null },
+                    new ListViewItem.ListViewSubItem { Text = size.ToString("N0", SizeColumnNumberFormatInfo), Tag = size },
+                    new ListViewItem.ListViewSubItem { Text = lastWriteTime.ToString("yyyy-MM-dd HH:mm:ss"), Tag = lastWriteTime },
+                    new ListViewItem.ListViewSubItem { Text = FileAttributesUtility.ToString(attributes), Tag = attributes }
+                },
+                1
+            )
+            {
+                Name = name
+            };
         }
 
-        public static ListViewItem AddFolder(ListView listView, string name, DateTime lastWriteTime, FileAttributes attributes)
+        public static ListViewItem BuildFolder(string name, DateTime lastWriteTime, FileAttributes attributes)
         {
-            return listView.Items.Add
+            return new ListViewItem
             (
-                new ListViewItem
-                (
-                    new[]
-                    {
-                        new ListViewItem.ListViewSubItem { Text = name, Tag = null },
-                        new ListViewItem.ListViewSubItem { Text = null, Tag = null },
-                        new ListViewItem.ListViewSubItem { Text = null, Tag = null },
-                        new ListViewItem.ListViewSubItem { Text = lastWriteTime.ToString("yyyy-MM-dd HH:mm:ss"), Tag = lastWriteTime },
-                        new ListViewItem.ListViewSubItem { Text = FileAttributesUtility.ToString(attributes), Tag = attributes }
-                    },
-                    0
-                )
+                new[]
                 {
-                    Name = name
-                }
-            );
+                    new ListViewItem.ListViewSubItem { Text = name, Tag = null },
+                    new ListViewItem.ListViewSubItem { Text = null, Tag = null },
+                    new ListViewItem.ListViewSubItem { Text = null, Tag = null },
+                    new ListViewItem.ListViewSubItem { Text = lastWriteTime.ToString("yyyy-MM-dd HH:mm:ss"), Tag = lastWriteTime },
+                    new ListViewItem.ListViewSubItem { Text = FileAttributesUtility.ToString(attributes), Tag = attributes }
+                },
+                0
+            )
+            {
+                Name = name
+            };
         }
 
         public static bool FindNext(ListView listView, Regex nameRegex)
@@ -146,6 +140,13 @@ namespace LightFileExplorer
 
         public static void SetFile(ListViewItem viewItem, string name, ulong size, DateTime lastWriteTime, FileAttributes attributes)
         {
+            viewItem.ImageIndex = 1;
+
+            viewItem.Text = name;
+
+            viewItem.SubItems[1].Text = Path.GetExtension(name).ToUpperInvariant();
+            viewItem.SubItems[1].Tag = null;
+
             viewItem.SubItems[2].Text = size.ToString("N0", SizeColumnNumberFormatInfo);
             viewItem.SubItems[2].Tag = size;
 
@@ -158,6 +159,13 @@ namespace LightFileExplorer
 
         public static void SetFolder(ListViewItem viewItem, string name, DateTime lastWriteTime, FileAttributes attributes)
         {
+            viewItem.ImageIndex = 0;
+
+            viewItem.Text = name;
+
+            viewItem.SubItems[1].Text = null;
+            viewItem.SubItems[1].Tag = null;
+
             viewItem.SubItems[2].Text = null;
             viewItem.SubItems[2].Tag = null;
 

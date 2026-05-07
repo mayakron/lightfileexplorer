@@ -6,12 +6,18 @@ namespace LightFileExplorer
     {
         public static string ToString(FileAttributes fileAttributes)
         {
-            return (fileAttributes.HasFlag(FileAttributes.Archive) ? "A" : null) +
-                   (fileAttributes.HasFlag(FileAttributes.ReadOnly) ? "R" : null) +
-                   (fileAttributes.HasFlag(FileAttributes.Hidden) ? "H" : null) +
-                   (fileAttributes.HasFlag(FileAttributes.System) ? "S" : null) +
-                   (fileAttributes.HasFlag(FileAttributes.Compressed) ? "C" : null) +
-                   (fileAttributes.HasFlag(FileAttributes.Encrypted) ? "E" : null);
+            var chars = new char[6];
+
+            int charIndex = 0;
+
+            if (fileAttributes.HasFlag(FileAttributes.Archive)) chars[charIndex++] = 'A';
+            if (fileAttributes.HasFlag(FileAttributes.ReadOnly)) chars[charIndex++] = 'R';
+            if (fileAttributes.HasFlag(FileAttributes.Hidden)) chars[charIndex++] = 'H';
+            if (fileAttributes.HasFlag(FileAttributes.System)) chars[charIndex++] = 'S';
+            if (fileAttributes.HasFlag(FileAttributes.Compressed)) chars[charIndex++] = 'C';
+            if (fileAttributes.HasFlag(FileAttributes.Encrypted)) chars[charIndex++] = 'E';
+
+            return new string(chars, 0, charIndex);
         }
     }
 }

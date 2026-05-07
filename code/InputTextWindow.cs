@@ -30,7 +30,7 @@ namespace LightFileExplorer
 
         private void MyOkButton_Click(object sender, EventArgs e)
         {
-            this.Input1 = this.Input1TextBox.Text;
+            this.Input1 = this.Input1TextBox.Text.Trim();
 
             this.DialogResult = DialogResult.OK;
         }

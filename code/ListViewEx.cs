@@ -15,13 +15,13 @@ namespace System.Windows.Forms
         {
             if (m.Msg == 0x204E)
             {
-                NMHDR hdr = (NMHDR)m.GetLParam(typeof(NMHDR));
+                var hdr = (NMHDR)m.GetLParam(typeof(NMHDR));
 
                 if (hdr.code == NM_CUSTOMDRAW)
                 {
-                    m.Result = (IntPtr)0;
+                    m.Result = (IntPtr)0; // CDRF_DODEFAULT = 0. The control will draw itself. It will not send any additional NM_CUSTOMDRAW notification codes for this paint cycle.
 
-                    return;
+                    return; // Does not call base.WndProc, so Windows Forms' own custom-draw handler never runs.
                 }
             }
 
@@ -33,7 +33,7 @@ namespace System.Windows.Forms
         {
             public IntPtr hwndFrom;
 
-            public uint idFrom;
+            public IntPtr idFrom;
 
             public uint code;
         }
