@@ -1387,7 +1387,7 @@ namespace LightFileExplorer
 
         private void HelpAboutToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            MessageBox.Show($"A file explorer application designed for speed. (v. {Application.ProductVersion})", "About", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show($"A file explorer application, designed for speed. (v. {Application.ProductVersion})", "About", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         private void HelpProjectPageToolStripMenuItem_Click(object sender, EventArgs e)

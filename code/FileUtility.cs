@@ -13,7 +13,7 @@ namespace LightFileExplorer
 
     internal static class FileUtility
     {
-        private static readonly Regex ReservedNameRegex = new Regex("^AUX|COM[1-9]|CON|LPT[1-9]|NUL|PRN$", RegexOptions.IgnoreCase);
+        private static readonly Regex ReservedNameRegex = new Regex("^(AUX|COM[1-9]|CON|LPT[1-9]|NUL|PRN)$", RegexOptions.IgnoreCase);
 
         private static readonly Regex ValidNameRegex = new Regex("^[^\\\\/:*?\"<>|]+$");
 

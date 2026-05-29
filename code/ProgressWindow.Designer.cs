@@ -31,32 +31,32 @@
             this.ProgressBar = new System.Windows.Forms.ProgressBar();
             this.ProgressLabel = new System.Windows.Forms.Label();
             this.MyAbortButton = new System.Windows.Forms.Button();
-            this.label1 = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // ProgressBar
             // 
-            this.ProgressBar.Location = new System.Drawing.Point(20, 39);
+            this.ProgressBar.Location = new System.Drawing.Point(15, 35);
             this.ProgressBar.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.ProgressBar.Name = "ProgressBar";
-            this.ProgressBar.Size = new System.Drawing.Size(786, 27);
+            this.ProgressBar.Size = new System.Drawing.Size(720, 27);
             this.ProgressBar.Style = System.Windows.Forms.ProgressBarStyle.Marquee;
             this.ProgressBar.TabIndex = 0;
             // 
             // ProgressLabel
             // 
             this.ProgressLabel.AutoSize = true;
-            this.ProgressLabel.Location = new System.Drawing.Point(20, 15);
+            this.ProgressLabel.Location = new System.Drawing.Point(15, 15);
             this.ProgressLabel.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.ProgressLabel.Name = "ProgressLabel";
-            this.ProgressLabel.Size = new System.Drawing.Size(194, 15);
+            this.ProgressLabel.Size = new System.Drawing.Size(669, 15);
             this.ProgressLabel.TabIndex = 3;
-            this.ProgressLabel.Text = "Operation in progress, please wait...";
+            this.ProgressLabel.Text = "Operation in progress, please wait... (and note that, if you abort it, you can le" +
+    "ave the operation in a partial state of completion)";
             // 
             // MyAbortButton
             // 
             this.MyAbortButton.DialogResult = System.Windows.Forms.DialogResult.OK;
-            this.MyAbortButton.Location = new System.Drawing.Point(362, 89);
+            this.MyAbortButton.Location = new System.Drawing.Point(334, 90);
             this.MyAbortButton.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.MyAbortButton.Name = "MyAbortButton";
             this.MyAbortButton.Size = new System.Drawing.Size(100, 29);
@@ -65,24 +65,13 @@
             this.MyAbortButton.UseVisualStyleBackColor = true;
             this.MyAbortButton.Click += new System.EventHandler(this.MyAbortButton_Click);
             // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(224, 136);
-            this.label1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(392, 15);
-            this.label1.TabIndex = 5;
-            this.label1.Text = "Note that aborting an operation in progress can leave partial files on disk.";
-            // 
             // ProgressWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.Control;
-            this.ClientSize = new System.Drawing.Size(822, 161);
+            this.ClientSize = new System.Drawing.Size(752, 135);
             this.ControlBox = false;
-            this.Controls.Add(this.label1);
             this.Controls.Add(this.MyAbortButton);
             this.Controls.Add(this.ProgressLabel);
             this.Controls.Add(this.ProgressBar);
@@ -107,6 +96,5 @@
         private System.Windows.Forms.ProgressBar ProgressBar;
         private System.Windows.Forms.Label ProgressLabel;
         private System.Windows.Forms.Button MyAbortButton;
-        private System.Windows.Forms.Label label1;
     }
 }
