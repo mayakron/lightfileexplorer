@@ -124,7 +124,7 @@
 
         private System.Windows.Forms.ListViewEx FileView;
 
-        private System.Windows.Forms.ImageList FileTypesImageList;
+        private System.Windows.Forms.ImageList FileIcons;
 
         private System.Windows.Forms.StatusStrip StatusStrip;
 
@@ -144,7 +144,7 @@
         {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainWindow));
-            this.FileTypesImageList = new System.Windows.Forms.ImageList(this.components);
+            this.FileIcons = new System.Windows.Forms.ImageList(this.components);
             this.MenuStrip = new System.Windows.Forms.MenuStrip();
             this.FilesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.FilesNewFolderToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -211,12 +211,26 @@
             this.StatusStrip.SuspendLayout();
             this.SuspendLayout();
             // 
-            // FileTypesImageList
+            // FileIcons
             // 
-            this.FileTypesImageList.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("FileTypesImageList.ImageStream")));
-            this.FileTypesImageList.TransparentColor = System.Drawing.Color.Transparent;
-            this.FileTypesImageList.Images.SetKeyName(0, "0000Directory.png");
-            this.FileTypesImageList.Images.SetKeyName(1, "0001File.png");
+            this.FileIcons.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("FileIcons.ImageStream")));
+            this.FileIcons.TransparentColor = System.Drawing.Color.Transparent;
+            this.FileIcons.Images.SetKeyName(0, "0000Directory.png");
+            this.FileIcons.Images.SetKeyName(1, "0001File.png");
+            this.FileIcons.Images.SetKeyName(2, "0002FileArchive.png");
+            this.FileIcons.Images.SetKeyName(3, "0003FileLibrary.png");
+            this.FileIcons.Images.SetKeyName(4, "0004FileProgram.png");
+            this.FileIcons.Images.SetKeyName(5, "0005FileAudio.png");
+            this.FileIcons.Images.SetKeyName(6, "0006FileImage.png");
+            this.FileIcons.Images.SetKeyName(7, "0007FileVideo.png");
+            this.FileIcons.Images.SetKeyName(8, "0008FileText.png");
+            this.FileIcons.Images.SetKeyName(9, "0009FileIllustration.png");
+            this.FileIcons.Images.SetKeyName(10, "0010FileSpreadsheet.png");
+            this.FileIcons.Images.SetKeyName(11, "0011FilePresentation.png");
+            this.FileIcons.Images.SetKeyName(12, "0012FileWeb.png");
+            this.FileIcons.Images.SetKeyName(13, "0013FileCode.png");
+            this.FileIcons.Images.SetKeyName(14, "0014FileBook.png");
+            this.FileIcons.Images.SetKeyName(15, "0015FilePdf.png");
             // 
             // MenuStrip
             // 
@@ -545,36 +559,36 @@
             // 
             this.ToolsLightFileExplorerHereToolStripMenuItem.Name = "ToolsLightFileExplorerHereToolStripMenuItem";
             this.ToolsLightFileExplorerHereToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.L)));
-            this.ToolsLightFileExplorerHereToolStripMenuItem.Size = new System.Drawing.Size(249, 22);
+            this.ToolsLightFileExplorerHereToolStripMenuItem.Size = new System.Drawing.Size(221, 22);
             this.ToolsLightFileExplorerHereToolStripMenuItem.Text = "Light File Explorer";
             this.ToolsLightFileExplorerHereToolStripMenuItem.Click += new System.EventHandler(this.ToolsLightFileExplorerToolStripMenuItem_Click);
             // 
             // ToolStripMenuItemSeparator3
             // 
             this.ToolStripMenuItemSeparator3.Name = "ToolStripMenuItemSeparator3";
-            this.ToolStripMenuItemSeparator3.Size = new System.Drawing.Size(246, 6);
+            this.ToolStripMenuItemSeparator3.Size = new System.Drawing.Size(218, 6);
             // 
-            // ToolsFileExplorerToolStripMenuItem
+            // ToolsFileExplorerHereToolStripMenuItem
             // 
             this.ToolsFileExplorerHereToolStripMenuItem.Name = "ToolsFileExplorerHereToolStripMenuItem";
             this.ToolsFileExplorerHereToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.E)));
-            this.ToolsFileExplorerHereToolStripMenuItem.Size = new System.Drawing.Size(249, 22);
+            this.ToolsFileExplorerHereToolStripMenuItem.Size = new System.Drawing.Size(221, 22);
             this.ToolsFileExplorerHereToolStripMenuItem.Text = "File Explorer";
             this.ToolsFileExplorerHereToolStripMenuItem.Click += new System.EventHandler(this.ToolsFileExplorerToolStripMenuItem_Click);
             // 
-            // ToolsCommandPromptToolStripMenuItem
+            // ToolsCommandPromptHereToolStripMenuItem
             // 
             this.ToolsCommandPromptHereToolStripMenuItem.Name = "ToolsCommandPromptHereToolStripMenuItem";
             this.ToolsCommandPromptHereToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.M)));
-            this.ToolsCommandPromptHereToolStripMenuItem.Size = new System.Drawing.Size(249, 22);
+            this.ToolsCommandPromptHereToolStripMenuItem.Size = new System.Drawing.Size(221, 22);
             this.ToolsCommandPromptHereToolStripMenuItem.Text = "Command Prompt";
             this.ToolsCommandPromptHereToolStripMenuItem.Click += new System.EventHandler(this.ToolsCommandPromptToolStripMenuItem_Click);
             // 
-            // ToolsPowerShellConsoleToolStripMenuItem
+            // ToolsPowerShellConsoleHereToolStripMenuItem
             // 
             this.ToolsPowerShellConsoleHereToolStripMenuItem.Name = "ToolsPowerShellConsoleHereToolStripMenuItem";
             this.ToolsPowerShellConsoleHereToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.H)));
-            this.ToolsPowerShellConsoleHereToolStripMenuItem.Size = new System.Drawing.Size(249, 22);
+            this.ToolsPowerShellConsoleHereToolStripMenuItem.Size = new System.Drawing.Size(221, 22);
             this.ToolsPowerShellConsoleHereToolStripMenuItem.Text = "PowerShell Console";
             this.ToolsPowerShellConsoleHereToolStripMenuItem.Click += new System.EventHandler(this.ToolsPowerShellConsoleToolStripMenuItem_Click);
             // 
@@ -595,7 +609,7 @@
             this.ViewSortLastModifiedToolStripMenuItem,
             this.ViewSortAttributesToolStripMenuItem});
             this.ViewSortToolStripMenuItem.Name = "ViewSortToolStripMenuItem";
-            this.ViewSortToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.ViewSortToolStripMenuItem.Size = new System.Drawing.Size(95, 22);
             this.ViewSortToolStripMenuItem.Text = "&Sort";
             // 
             // ViewSortNameToolStripMenuItem
@@ -714,7 +728,7 @@
             this.FileView.Name = "FileView";
             this.FileView.ShowGroups = false;
             this.FileView.Size = new System.Drawing.Size(1104, 614);
-            this.FileView.SmallImageList = this.FileTypesImageList;
+            this.FileView.SmallImageList = this.FileIcons;
             this.FileView.TabIndex = 1;
             this.FileView.UseCompatibleStateImageBehavior = false;
             this.FileView.View = System.Windows.Forms.View.Details;
@@ -776,6 +790,7 @@
             this.StatusStrip.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
+
         }
     }
 }

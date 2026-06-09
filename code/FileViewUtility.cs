@@ -22,7 +22,7 @@ namespace LightFileExplorer
                     new ListViewItem.ListViewSubItem { Text = lastWriteTime.ToString("yyyy-MM-dd HH:mm:ss"), Tag = lastWriteTime },
                     new ListViewItem.ListViewSubItem { Text = FileAttributesUtility.ToString(attributes), Tag = attributes }
                 },
-                1
+                GetFileIconIndex(name)
             )
             {
                 Name = name
@@ -140,7 +140,7 @@ namespace LightFileExplorer
 
         public static void SetFile(ListViewItem viewItem, string name, ulong size, DateTime lastWriteTime, FileAttributes attributes)
         {
-            viewItem.ImageIndex = 1;
+            viewItem.ImageIndex = GetFileIconIndex(name);
 
             viewItem.Text = name;
 
@@ -174,6 +174,11 @@ namespace LightFileExplorer
 
             viewItem.SubItems[4].Text = FileAttributesUtility.ToString(attributes);
             viewItem.SubItems[4].Tag = attributes;
+        }
+
+        private static int GetFileIconIndex(string name)
+        {
+            return ConfigurationUtility.FileIcons.TryGetValue(Path.GetExtension(name), out var index) ? index : 1;
         }
     }
 }

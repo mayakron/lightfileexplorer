@@ -11,6 +11,8 @@ namespace LightFileExplorer
 
         public static readonly List<Tuple<string, string>> CustomTools;
 
+        public static readonly Dictionary<string, int> FileIcons;
+
         public static readonly List<Tuple<string, string>> GotoFavorites;
 
         public static readonly List<Tuple<string, string>> OpenWith;
@@ -23,7 +25,16 @@ namespace LightFileExplorer
 
             try
             {
-                BinaryViewer = ConfigurationManager.AppSettings["BinaryViewer"];
+                FileIcons = ConfigurationManager.AppSettings["FileIcons"].Split('|').Select(x => x.Split('>')).ToDictionary(x => x[0], x => int.Parse(x[1]), StringComparer.OrdinalIgnoreCase);
+            }
+            catch
+            {
+                FileIcons = new Dictionary<string, int>();
+            }
+
+            try
+            {
+                OpenWith = ConfigurationManager.AppSettings["OpenWith"]?.Split('|').Select(x => x.Split('>')).Select(x => new Tuple<string, string>(x[0], x[1])).ToList();
             }
             catch
             {
@@ -31,7 +42,15 @@ namespace LightFileExplorer
 
             try
             {
-                CustomTools = ConfigurationManager.AppSettings["CustomTools"]?.Split('|').Select(x => x.Split('>')).Select(x => new Tuple<string, string>(x[0], x[1])).ToList();
+                TextViewer = ConfigurationManager.AppSettings["TextViewer"];
+            }
+            catch
+            {
+            }
+
+            try
+            {
+                BinaryViewer = ConfigurationManager.AppSettings["BinaryViewer"];
             }
             catch
             {
@@ -47,15 +66,7 @@ namespace LightFileExplorer
 
             try
             {
-                OpenWith = ConfigurationManager.AppSettings["OpenWith"]?.Split('|').Select(x => x.Split('>')).Select(x => new Tuple<string, string>(x[0], x[1])).ToList();
-            }
-            catch
-            {
-            }
-
-            try
-            {
-                TextViewer = ConfigurationManager.AppSettings["TextViewer"];
+                CustomTools = ConfigurationManager.AppSettings["CustomTools"]?.Split('|').Select(x => x.Split('>')).Select(x => new Tuple<string, string>(x[0], x[1])).ToList();
             }
             catch
             {
