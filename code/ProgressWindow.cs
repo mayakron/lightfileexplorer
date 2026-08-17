@@ -6,7 +6,7 @@ namespace LightFileExplorer
 {
     public partial class ProgressWindow : Form
     {
-        private Thread workerThread;
+        private readonly Thread workerThread;
 
         public ProgressWindow(Form parentWindow, string description, Thread workerThread)
         {
@@ -17,9 +17,9 @@ namespace LightFileExplorer
             this.Text = description + " - LFE";
         }
 
-        private void MyAbortButton_Click(object sender, EventArgs e)
+        private void MyAbortButtonClick(object sender, EventArgs e)
         {
-            // By allowing the user to abort the operation, we accept that some files and directories can end up in partially consistent state.
+            // By allowing the user to abort the operation, we accept that some files and directories can end up in a partially consistent state.
 
             if (this.workerThread != null)
             {

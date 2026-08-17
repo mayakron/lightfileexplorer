@@ -72,7 +72,7 @@
     <Compile Include="ConfigurationUtility.cs" />
     <Compile Include="FileAttributesUtility.cs" />
     <Compile Include="FileUtility.cs" />
-    <Compile Include="FileViewColumnLastModifiedSorter.cs" />
+    <Compile Include="FileViewColumnDateModifiedSorter.cs" />
     <Compile Include="FileViewColumnAttributesSorter.cs" />
     <Compile Include="FileViewColumnExtensionSorter.cs" />
     <Compile Include="FileViewColumnSizeSorter.cs" />

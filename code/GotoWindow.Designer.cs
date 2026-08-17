@@ -64,7 +64,7 @@
             this.MyOkButton.TabIndex = 4;
             this.MyOkButton.Text = "&OK";
             this.MyOkButton.UseVisualStyleBackColor = true;
-            this.MyOkButton.Click += new System.EventHandler(this.MyOkButton_Click);
+            this.MyOkButton.Click += new System.EventHandler(this.MyOkButtonClick);
             // 
             // MyCancelButton
             // 
@@ -76,7 +76,7 @@
             this.MyCancelButton.TabIndex = 5;
             this.MyCancelButton.Text = "&Cancel";
             this.MyCancelButton.UseVisualStyleBackColor = true;
-            this.MyCancelButton.Click += new System.EventHandler(this.MyCancelButton_Click);
+            this.MyCancelButton.Click += new System.EventHandler(this.MyCancelButtonClick);
             // 
             // DrivesLabel
             // 
@@ -96,8 +96,8 @@
             this.DrivesListBox.Name = "DrivesListBox";
             this.DrivesListBox.Size = new System.Drawing.Size(618, 154);
             this.DrivesListBox.TabIndex = 3;
-            this.DrivesListBox.SelectedIndexChanged += new System.EventHandler(this.DrivesListBox_SelectedIndexChanged);
-            this.DrivesListBox.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.DrivesListBox_MouseDoubleClick);
+            this.DrivesListBox.SelectedIndexChanged += new System.EventHandler(this.DrivesListBoxSelectedIndexChanged);
+            this.DrivesListBox.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.DrivesListBoxMouseDoubleClick);
             // 
             // GotoWindow
             // 
@@ -124,7 +124,7 @@
             this.ShowInTaskbar = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Goto";
-            this.Load += new System.EventHandler(this.GotoWindow_Load);
+            this.Load += new System.EventHandler(this.GotoWindowLoad);
             this.ResumeLayout(false);
             this.PerformLayout();
 

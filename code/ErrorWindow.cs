@@ -76,7 +76,7 @@ namespace LightFileExplorer
             }
         }
 
-        private void MyCopyButton_Click(object sender, EventArgs e)
+        private void MyCopyButtonClick(object sender, EventArgs e)
         {
             if (!string.IsNullOrEmpty(this.ErrorTextBox.Text))
             {

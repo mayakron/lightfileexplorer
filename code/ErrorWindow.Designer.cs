@@ -75,7 +75,7 @@
             this.MyCopyButton.TabIndex = 1;
             this.MyCopyButton.Text = "&Copy";
             this.MyCopyButton.UseVisualStyleBackColor = true;
-            this.MyCopyButton.Click += new System.EventHandler(this.MyCopyButton_Click);
+            this.MyCopyButton.Click += new System.EventHandler(this.MyCopyButtonClick);
             // 
             // ErrorWindow
             // 

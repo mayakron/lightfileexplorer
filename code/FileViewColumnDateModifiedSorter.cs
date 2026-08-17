@@ -4,13 +4,13 @@ using System.Windows.Forms;
 
 namespace LightFileExplorer
 {
-    internal class FileViewColumnLastModifiedSorter : IComparer, IHasName
+    internal class FileViewColumnDateModifiedSorter : IComparer, IHasName
     {
         public string Name
         {
             get
             {
-                return "Last Modified";
+                return "Date Modified";
             }
         }
 

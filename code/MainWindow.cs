@@ -20,7 +20,7 @@ namespace LightFileExplorer
 
         private readonly FileViewColumnExtensionSorter FileViewColumnExtensionSorter = new FileViewColumnExtensionSorter();
 
-        private readonly FileViewColumnLastModifiedSorter FileViewColumnLastModifiedSorter = new FileViewColumnLastModifiedSorter();
+        private readonly FileViewColumnDateModifiedSorter FileViewColumnDateModifiedSorter = new FileViewColumnDateModifiedSorter();
 
         private readonly FileViewColumnNameSorter FileViewColumnNameSorter = new FileViewColumnNameSorter();
 
@@ -36,51 +36,18 @@ namespace LightFileExplorer
 
         public MainWindow()
         {
-            Keys GetDigitShortcutKeys(Keys baseKeys, int index)
-            {
-                switch (index)
-                {
-                    case 0: return baseKeys | Keys.D1;
-                    case 1: return baseKeys | Keys.D2;
-                    case 2: return baseKeys | Keys.D3;
-                    case 3: return baseKeys | Keys.D4;
-                    case 4: return baseKeys | Keys.D5;
-                    case 5: return baseKeys | Keys.D6;
-                    case 6: return baseKeys | Keys.D7;
-                    case 7: return baseKeys | Keys.D8;
-                    case 8: return baseKeys | Keys.D9;
-                    case 9: return baseKeys | Keys.D0;
-                }
+            var keysConverter = new KeysConverter();
 
-                return Keys.None;
-            }
-
-            Keys GetFunctionShortcutKeys(Keys baseKeys, int index)
-            {
-                switch (index)
-                {
-                    case 0: return baseKeys | Keys.F1;
-                    case 1: return baseKeys | Keys.F2;
-                    case 2: return baseKeys | Keys.F3;
-                    case 3: return baseKeys | Keys.F4;
-                    case 4: return baseKeys | Keys.F5;
-                    case 5: return baseKeys | Keys.F6;
-                    case 6: return baseKeys | Keys.F7;
-                    case 7: return baseKeys | Keys.F8;
-                    case 8: return baseKeys | Keys.F9;
-                    case 9: return baseKeys | Keys.F10;
-                }
-
-                return Keys.None;
-            }
-
-            ToolStripMenuItem CreateFilesOpenWithMenuItem(string text, string path, Keys shortcutKeys)
+            ToolStripMenuItem CreateFilesOpenWithMenuItem(string text, string path, string shortcutKeys)
             {
                 var menuItem = new ToolStripMenuItem();
 
                 menuItem.Text = text;
 
-                menuItem.ShortcutKeys = shortcutKeys;
+                if (!string.IsNullOrEmpty(shortcutKeys) && !shortcutKeys.Equals("-"))
+                {
+                    menuItem.ShortcutKeys = (Keys)keysConverter.ConvertFromString(shortcutKeys);
+                }
 
                 menuItem.Click += (sender, e) =>
                 {
@@ -100,41 +67,49 @@ namespace LightFileExplorer
                     }
                     catch (Exception ex)
                     {
-                        this.MainWindow_ReportError(ex);
+                        this.MainWindowReportError(ex);
                     }
                 };
 
                 return menuItem;
             }
 
-            ToolStripMenuItem CreateGotoKnownFolderMenuItem(string text, string path, Keys shortcutKeys)
+            ToolStripMenuItem CreateGotoKnownFolderMenuItem(string text, string path, string shortcutKeys)
             {
                 var menuItem = new ToolStripMenuItem();
 
                 menuItem.Text = text;
 
-                menuItem.ShortcutKeys = shortcutKeys;
+                if (!string.IsNullOrEmpty(shortcutKeys) && !shortcutKeys.Equals("-"))
+                {
+                    menuItem.ShortcutKeys = (Keys)keysConverter.ConvertFromString(shortcutKeys);
+                }
 
                 menuItem.Click += (sender, e) =>
                 {
                     try
                     {
-                        this.MainWindow_GotoFolder(path);
+                        this.MainWindowGotoFolder(path);
                     }
                     catch (Exception ex)
                     {
-                        this.MainWindow_ReportError(ex);
+                        this.MainWindowReportError(ex);
                     }
                 };
 
                 return menuItem;
             }
 
-            ToolStripMenuItem CreateToolsCustomToolMenuItem(string text, string path)
+            ToolStripMenuItem CreateToolsCustomToolMenuItem(string text, string path, string shortcutKeys)
             {
                 var menuItem = new ToolStripMenuItem();
 
                 menuItem.Text = text;
+
+                if (!string.IsNullOrEmpty(shortcutKeys) && !shortcutKeys.Equals("-"))
+                {
+                    menuItem.ShortcutKeys = (Keys)keysConverter.ConvertFromString(shortcutKeys);
+                }
 
                 menuItem.Click += (sender, e) =>
                 {
@@ -144,7 +119,7 @@ namespace LightFileExplorer
                     }
                     catch (Exception ex)
                     {
-                        this.MainWindow_ReportError(ex);
+                        this.MainWindowReportError(ex);
                     }
                 };
 
@@ -169,38 +144,38 @@ namespace LightFileExplorer
                 {
                     var item = ConfigurationUtility.OpenWith[index];
 
-                    filesOpenWithMenuItem.DropDownItems.Add(CreateFilesOpenWithMenuItem(item.Item1, item.Item2, GetFunctionShortcutKeys(Keys.Control, index)));
+                    filesOpenWithMenuItem.DropDownItems.Add(CreateFilesOpenWithMenuItem(item.Item1, item.Item2, item.Item3));
                 }
 
                 this.FilesToolStripMenuItem.DropDownItems.Insert(3, filesOpenWithMenuItem);
             }
 
-            this.GotoLogicalDriveToolStripMenuItem.DropDownItems.Add(CreateGotoKnownFolderMenuItem(@"A:\", @"A:\", Keys.Control | Keys.Alt | Keys.A));
-            this.GotoLogicalDriveToolStripMenuItem.DropDownItems.Add(CreateGotoKnownFolderMenuItem(@"B:\", @"B:\", Keys.Control | Keys.Alt | Keys.B));
-            this.GotoLogicalDriveToolStripMenuItem.DropDownItems.Add(CreateGotoKnownFolderMenuItem(@"C:\", @"C:\", Keys.Control | Keys.Alt | Keys.C));
-            this.GotoLogicalDriveToolStripMenuItem.DropDownItems.Add(CreateGotoKnownFolderMenuItem(@"D:\", @"D:\", Keys.Control | Keys.Alt | Keys.D));
-            this.GotoLogicalDriveToolStripMenuItem.DropDownItems.Add(CreateGotoKnownFolderMenuItem(@"E:\", @"E:\", Keys.Control | Keys.Alt | Keys.E));
-            this.GotoLogicalDriveToolStripMenuItem.DropDownItems.Add(CreateGotoKnownFolderMenuItem(@"F:\", @"F:\", Keys.Control | Keys.Alt | Keys.F));
-            this.GotoLogicalDriveToolStripMenuItem.DropDownItems.Add(CreateGotoKnownFolderMenuItem(@"G:\", @"G:\", Keys.Control | Keys.Alt | Keys.G));
-            this.GotoLogicalDriveToolStripMenuItem.DropDownItems.Add(CreateGotoKnownFolderMenuItem(@"H:\", @"H:\", Keys.Control | Keys.Alt | Keys.H));
-            this.GotoLogicalDriveToolStripMenuItem.DropDownItems.Add(CreateGotoKnownFolderMenuItem(@"I:\", @"I:\", Keys.Control | Keys.Alt | Keys.I));
-            this.GotoLogicalDriveToolStripMenuItem.DropDownItems.Add(CreateGotoKnownFolderMenuItem(@"J:\", @"J:\", Keys.Control | Keys.Alt | Keys.J));
-            this.GotoLogicalDriveToolStripMenuItem.DropDownItems.Add(CreateGotoKnownFolderMenuItem(@"K:\", @"K:\", Keys.Control | Keys.Alt | Keys.K));
-            this.GotoLogicalDriveToolStripMenuItem.DropDownItems.Add(CreateGotoKnownFolderMenuItem(@"L:\", @"L:\", Keys.Control | Keys.Alt | Keys.L));
-            this.GotoLogicalDriveToolStripMenuItem.DropDownItems.Add(CreateGotoKnownFolderMenuItem(@"M:\", @"M:\", Keys.Control | Keys.Alt | Keys.M));
-            this.GotoLogicalDriveToolStripMenuItem.DropDownItems.Add(CreateGotoKnownFolderMenuItem(@"N:\", @"N:\", Keys.Control | Keys.Alt | Keys.N));
-            this.GotoLogicalDriveToolStripMenuItem.DropDownItems.Add(CreateGotoKnownFolderMenuItem(@"O:\", @"O:\", Keys.Control | Keys.Alt | Keys.O));
-            this.GotoLogicalDriveToolStripMenuItem.DropDownItems.Add(CreateGotoKnownFolderMenuItem(@"P:\", @"P:\", Keys.Control | Keys.Alt | Keys.P));
-            this.GotoLogicalDriveToolStripMenuItem.DropDownItems.Add(CreateGotoKnownFolderMenuItem(@"Q:\", @"Q:\", Keys.Control | Keys.Alt | Keys.Q));
-            this.GotoLogicalDriveToolStripMenuItem.DropDownItems.Add(CreateGotoKnownFolderMenuItem(@"R:\", @"R:\", Keys.Control | Keys.Alt | Keys.R));
-            this.GotoLogicalDriveToolStripMenuItem.DropDownItems.Add(CreateGotoKnownFolderMenuItem(@"S:\", @"S:\", Keys.Control | Keys.Alt | Keys.S));
-            this.GotoLogicalDriveToolStripMenuItem.DropDownItems.Add(CreateGotoKnownFolderMenuItem(@"T:\", @"T:\", Keys.Control | Keys.Alt | Keys.T));
-            this.GotoLogicalDriveToolStripMenuItem.DropDownItems.Add(CreateGotoKnownFolderMenuItem(@"U:\", @"U:\", Keys.Control | Keys.Alt | Keys.U));
-            this.GotoLogicalDriveToolStripMenuItem.DropDownItems.Add(CreateGotoKnownFolderMenuItem(@"V:\", @"V:\", Keys.Control | Keys.Alt | Keys.V));
-            this.GotoLogicalDriveToolStripMenuItem.DropDownItems.Add(CreateGotoKnownFolderMenuItem(@"W:\", @"W:\", Keys.Control | Keys.Alt | Keys.W));
-            this.GotoLogicalDriveToolStripMenuItem.DropDownItems.Add(CreateGotoKnownFolderMenuItem(@"X:\", @"X:\", Keys.Control | Keys.Alt | Keys.X));
-            this.GotoLogicalDriveToolStripMenuItem.DropDownItems.Add(CreateGotoKnownFolderMenuItem(@"Y:\", @"Y:\", Keys.Control | Keys.Alt | Keys.Y));
-            this.GotoLogicalDriveToolStripMenuItem.DropDownItems.Add(CreateGotoKnownFolderMenuItem(@"Z:\", @"Z:\", Keys.Control | Keys.Alt | Keys.Z));
+            this.GotoLogicalDriveToolStripMenuItem.DropDownItems.Add(CreateGotoKnownFolderMenuItem(@"A:\", @"A:\", "Ctrl+Alt+A"));
+            this.GotoLogicalDriveToolStripMenuItem.DropDownItems.Add(CreateGotoKnownFolderMenuItem(@"B:\", @"B:\", "Ctrl+Alt+B"));
+            this.GotoLogicalDriveToolStripMenuItem.DropDownItems.Add(CreateGotoKnownFolderMenuItem(@"C:\", @"C:\", "Ctrl+Alt+C"));
+            this.GotoLogicalDriveToolStripMenuItem.DropDownItems.Add(CreateGotoKnownFolderMenuItem(@"D:\", @"D:\", "Ctrl+Alt+D"));
+            this.GotoLogicalDriveToolStripMenuItem.DropDownItems.Add(CreateGotoKnownFolderMenuItem(@"E:\", @"E:\", "Ctrl+Alt+E"));
+            this.GotoLogicalDriveToolStripMenuItem.DropDownItems.Add(CreateGotoKnownFolderMenuItem(@"F:\", @"F:\", "Ctrl+Alt+F"));
+            this.GotoLogicalDriveToolStripMenuItem.DropDownItems.Add(CreateGotoKnownFolderMenuItem(@"G:\", @"G:\", "Ctrl+Alt+G"));
+            this.GotoLogicalDriveToolStripMenuItem.DropDownItems.Add(CreateGotoKnownFolderMenuItem(@"H:\", @"H:\", "Ctrl+Alt+H"));
+            this.GotoLogicalDriveToolStripMenuItem.DropDownItems.Add(CreateGotoKnownFolderMenuItem(@"I:\", @"I:\", "Ctrl+Alt+I"));
+            this.GotoLogicalDriveToolStripMenuItem.DropDownItems.Add(CreateGotoKnownFolderMenuItem(@"J:\", @"J:\", "Ctrl+Alt+J"));
+            this.GotoLogicalDriveToolStripMenuItem.DropDownItems.Add(CreateGotoKnownFolderMenuItem(@"K:\", @"K:\", "Ctrl+Alt+K"));
+            this.GotoLogicalDriveToolStripMenuItem.DropDownItems.Add(CreateGotoKnownFolderMenuItem(@"L:\", @"L:\", "Ctrl+Alt+L"));
+            this.GotoLogicalDriveToolStripMenuItem.DropDownItems.Add(CreateGotoKnownFolderMenuItem(@"M:\", @"M:\", "Ctrl+Alt+M"));
+            this.GotoLogicalDriveToolStripMenuItem.DropDownItems.Add(CreateGotoKnownFolderMenuItem(@"N:\", @"N:\", "Ctrl+Alt+N"));
+            this.GotoLogicalDriveToolStripMenuItem.DropDownItems.Add(CreateGotoKnownFolderMenuItem(@"O:\", @"O:\", "Ctrl+Alt+O"));
+            this.GotoLogicalDriveToolStripMenuItem.DropDownItems.Add(CreateGotoKnownFolderMenuItem(@"P:\", @"P:\", "Ctrl+Alt+P"));
+            this.GotoLogicalDriveToolStripMenuItem.DropDownItems.Add(CreateGotoKnownFolderMenuItem(@"Q:\", @"Q:\", "Ctrl+Alt+Q"));
+            this.GotoLogicalDriveToolStripMenuItem.DropDownItems.Add(CreateGotoKnownFolderMenuItem(@"R:\", @"R:\", "Ctrl+Alt+R"));
+            this.GotoLogicalDriveToolStripMenuItem.DropDownItems.Add(CreateGotoKnownFolderMenuItem(@"S:\", @"S:\", "Ctrl+Alt+S"));
+            this.GotoLogicalDriveToolStripMenuItem.DropDownItems.Add(CreateGotoKnownFolderMenuItem(@"T:\", @"T:\", "Ctrl+Alt+T"));
+            this.GotoLogicalDriveToolStripMenuItem.DropDownItems.Add(CreateGotoKnownFolderMenuItem(@"U:\", @"U:\", "Ctrl+Alt+U"));
+            this.GotoLogicalDriveToolStripMenuItem.DropDownItems.Add(CreateGotoKnownFolderMenuItem(@"V:\", @"V:\", "Ctrl+Alt+V"));
+            this.GotoLogicalDriveToolStripMenuItem.DropDownItems.Add(CreateGotoKnownFolderMenuItem(@"W:\", @"W:\", "Ctrl+Alt+W"));
+            this.GotoLogicalDriveToolStripMenuItem.DropDownItems.Add(CreateGotoKnownFolderMenuItem(@"X:\", @"X:\", "Ctrl+Alt+X"));
+            this.GotoLogicalDriveToolStripMenuItem.DropDownItems.Add(CreateGotoKnownFolderMenuItem(@"Y:\", @"Y:\", "Ctrl+Alt+Y"));
+            this.GotoLogicalDriveToolStripMenuItem.DropDownItems.Add(CreateGotoKnownFolderMenuItem(@"Z:\", @"Z:\", "Ctrl+Alt+Z"));
 
             if ((ConfigurationUtility.GotoFavorites != null) && (ConfigurationUtility.GotoFavorites.Count > 0))
             {
@@ -210,7 +185,7 @@ namespace LightFileExplorer
                 {
                     var item = ConfigurationUtility.GotoFavorites[index];
 
-                    this.GotoToolStripMenuItem.DropDownItems.Add(CreateGotoKnownFolderMenuItem(item.Item1, item.Item2, GetDigitShortcutKeys(Keys.Control, index)));
+                    this.GotoToolStripMenuItem.DropDownItems.Add(CreateGotoKnownFolderMenuItem(item.Item1, item.Item2, item.Item3));
                 }
             }
 
@@ -233,7 +208,7 @@ namespace LightFileExplorer
 
                         if ((parentMenuItem != null) && (parentMenuItem.Text.Equals(part1)))
                         {
-                            parentMenuItem.DropDownItems.Add(CreateToolsCustomToolMenuItem(part2, item.Item2));
+                            parentMenuItem.DropDownItems.Add(CreateToolsCustomToolMenuItem(part2, item.Item2, item.Item3));
                         }
                         else
                         {
@@ -241,7 +216,7 @@ namespace LightFileExplorer
 
                             parentMenuItem.Text = part1;
 
-                            parentMenuItem.DropDownItems.Add(CreateToolsCustomToolMenuItem(part2, item.Item2));
+                            parentMenuItem.DropDownItems.Add(CreateToolsCustomToolMenuItem(part2, item.Item2, item.Item3));
 
                             this.ToolsToolStripMenuItem.DropDownItems.Add(parentMenuItem);
                         }
@@ -250,13 +225,85 @@ namespace LightFileExplorer
                     {
                         parentMenuItem = null;
 
-                        this.ToolsToolStripMenuItem.DropDownItems.Add(CreateToolsCustomToolMenuItem(item.Item1, item.Item2));
+                        this.ToolsToolStripMenuItem.DropDownItems.Add(CreateToolsCustomToolMenuItem(item.Item1, item.Item2, item.Item3));
                     }
                 }
             }
         }
 
-        private void FilesAdvancedSelectionToolStripMenuItem_Click(object sender, EventArgs e)
+        private void FileSystemWatcherTimerTick(object sender, EventArgs e)
+        {
+            if (!(this.FileSystemWatcherDictionary.Count > 0))
+            {
+                return;
+            }
+
+            try
+            {
+                try
+                {
+                    this.FileView.BeginUpdate();
+
+                    try
+                    {
+                        foreach (var item in this.FileSystemWatcherDictionary)
+                        {
+                            var key = item.Key;
+
+                            if (this.FileSystemWatcherDictionary.TryRemove(key, out byte _))
+                            {
+                                var viewItem = this.FileView.FindItemByKey(key);
+
+                                if (viewItem != null)
+                                {
+                                    if
+                                    (
+                                        !FileUtility.ScanSingleItem
+                                        (
+                                            key,
+                                            (name, lastWriteTime, attributes) => { FileViewUtility.SetFolder(viewItem, name, lastWriteTime, attributes); },
+                                            (name, size, lastWriteTime, attributes) => { FileViewUtility.SetFile(viewItem, name, size, lastWriteTime, attributes); }
+                                        )
+                                    )
+                                    {
+                                        this.FileView.RemoveItemByKey(key);
+                                    }
+                                }
+                                else
+                                {
+                                    if
+                                    (
+                                        !FileUtility.ScanSingleItem
+                                        (
+                                            key,
+                                            (name, lastWriteTime, attributes) => { this.FileView.AddItem(FileViewUtility.BuildFolder(name, lastWriteTime, attributes)); },
+                                            (name, size, lastWriteTime, attributes) => { this.FileView.AddItem(FileViewUtility.BuildFile(name, size, lastWriteTime, attributes)); }
+                                        )
+                                    )
+                                    {
+                                        // Forget the item.
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    finally
+                    {
+                        this.FileView.EndUpdate();
+                    }
+                }
+                finally
+                {
+                    this.StatusStripUpdateMessage();
+                }
+            }
+            catch (Exception ex)
+            {
+                this.MainWindowReportError(ex);
+            }
+        }
+
+        private void FilesAdvancedSelectionToolStripMenuItemClick(object sender, EventArgs e)
         {
             try
             {
@@ -291,11 +338,11 @@ namespace LightFileExplorer
             }
             catch (Exception ex)
             {
-                this.MainWindow_ReportError(ex);
+                this.MainWindowReportError(ex);
             }
         }
 
-        private void FilesCopyNameToolStripMenuItem_Click(object sender, EventArgs e)
+        private void FilesCopyNameToolStripMenuItemClick(object sender, EventArgs e)
         {
             try
             {
@@ -310,11 +357,11 @@ namespace LightFileExplorer
             }
             catch (Exception ex)
             {
-                this.MainWindow_ReportError(ex);
+                this.MainWindowReportError(ex);
             }
         }
 
-        private void FilesCopyPathToolStripMenuItem_Click(object sender, EventArgs e)
+        private void FilesCopyPathToolStripMenuItemClick(object sender, EventArgs e)
         {
             try
             {
@@ -329,11 +376,11 @@ namespace LightFileExplorer
             }
             catch (Exception ex)
             {
-                this.MainWindow_ReportError(ex);
+                this.MainWindowReportError(ex);
             }
         }
 
-        private void FilesCopyToolStripMenuItem_Click(object sender, EventArgs e)
+        private void FilesCopyToolStripMenuItemClick(object sender, EventArgs e)
         {
             try
             {
@@ -355,11 +402,11 @@ namespace LightFileExplorer
             }
             catch (Exception ex)
             {
-                this.MainWindow_ReportError(ex);
+                this.MainWindowReportError(ex);
             }
         }
 
-        private void FilesCopyToToolStripMenuItem_Click(object sender, EventArgs e)
+        private void FilesCopyToToolStripMenuItemClick(object sender, EventArgs e)
         {
             try
             {
@@ -378,7 +425,7 @@ namespace LightFileExplorer
                                 throw new Exception($"The \"{destinationPath}\" path does not exist.");
                             }
 
-                            this.MainWindow_RunAsyncOperation
+                            this.MainWindowRunAsyncOperation
                             (
                                 (asyncOperationParameter) =>
                                 {
@@ -414,11 +461,11 @@ namespace LightFileExplorer
             }
             catch (Exception ex)
             {
-                this.MainWindow_ReportError(ex);
+                this.MainWindowReportError(ex);
             }
         }
 
-        private void FilesCutToolStripMenuItem_Click(object sender, EventArgs e)
+        private void FilesCutToolStripMenuItemClick(object sender, EventArgs e)
         {
             try
             {
@@ -449,17 +496,17 @@ namespace LightFileExplorer
             }
             catch (Exception ex)
             {
-                this.MainWindow_ReportError(ex);
+                this.MainWindowReportError(ex);
             }
         }
 
-        private void FilesDeleteToolStripMenuItem_Click(object sender, EventArgs e)
+        private void FilesDeleteToolStripMenuItemClick(object sender, EventArgs e)
         {
             try
             {
                 if (this.FileView.SelectedItems.Count > 0)
                 {
-                    this.MainWindow_RunAsyncOperation
+                    this.MainWindowRunAsyncOperation
                     (
                         (asyncOperationParameter) =>
                         {
@@ -493,16 +540,16 @@ namespace LightFileExplorer
             }
             catch (Exception ex)
             {
-                this.MainWindow_ReportError(ex);
+                this.MainWindowReportError(ex);
             }
         }
 
-        private void FilesExitToolStripMenuItem_Click(object sender, EventArgs e)
+        private void FilesExitToolStripMenuItemClick(object sender, EventArgs e)
         {
             Application.Exit();
         }
 
-        private void FilesFindNextToolStripMenuItem_Click(object sender, EventArgs e)
+        private void FilesFindNextToolStripMenuItemClick(object sender, EventArgs e)
         {
             try
             {
@@ -516,11 +563,11 @@ namespace LightFileExplorer
             }
             catch (Exception ex)
             {
-                this.MainWindow_ReportError(ex);
+                this.MainWindowReportError(ex);
             }
         }
 
-        private void FilesFindPreviousToolStripMenuItem_Click(object sender, EventArgs e)
+        private void FilesFindPreviousToolStripMenuItemClick(object sender, EventArgs e)
         {
             try
             {
@@ -534,11 +581,11 @@ namespace LightFileExplorer
             }
             catch (Exception ex)
             {
-                this.MainWindow_ReportError(ex);
+                this.MainWindowReportError(ex);
             }
         }
 
-        private void FilesFindToolStripMenuItem_Click(object sender, EventArgs e)
+        private void FilesFindToolStripMenuItemClick(object sender, EventArgs e)
         {
             try
             {
@@ -562,11 +609,11 @@ namespace LightFileExplorer
             }
             catch (Exception ex)
             {
-                this.MainWindow_ReportError(ex);
+                this.MainWindowReportError(ex);
             }
         }
 
-        private void FilesInvertSelectionToolStripMenuItem_Click(object sender, EventArgs e)
+        private void FilesInvertSelectionToolStripMenuItemClick(object sender, EventArgs e)
         {
             this.FileView.BeginUpdate();
 
@@ -585,7 +632,7 @@ namespace LightFileExplorer
             }
         }
 
-        private void FilesMoveToToolStripMenuItem_Click(object sender, EventArgs e)
+        private void FilesMoveToToolStripMenuItemClick(object sender, EventArgs e)
         {
             try
             {
@@ -604,7 +651,7 @@ namespace LightFileExplorer
                                 throw new Exception($"The \"{destinationPath}\" path does not exist.");
                             }
 
-                            this.MainWindow_RunAsyncOperation
+                            this.MainWindowRunAsyncOperation
                             (
                                 (asyncOperationParameter) =>
                                 {
@@ -640,11 +687,11 @@ namespace LightFileExplorer
             }
             catch (Exception ex)
             {
-                this.MainWindow_ReportError(ex);
+                this.MainWindowReportError(ex);
             }
         }
 
-        private void FilesNewFolderToolStripMenuItem_Click(object sender, EventArgs e)
+        private void FilesNewFolderToolStripMenuItemClick(object sender, EventArgs e)
         {
             try
             {
@@ -671,7 +718,7 @@ namespace LightFileExplorer
                         {
                             this.FileView.SelectedItems.Clear();
 
-                            FileViewUtility.MoveTo(this.FileView.Items.Add(FileViewUtility.BuildFolder(folderName, DateTime.Now, FileAttributes.Normal)));
+                            FileViewUtility.MoveTo(this.FileView.AddItem(FileViewUtility.BuildFolder(folderName, DateTime.Now, FileAttributes.Normal)));
                         }
                         finally
                         {
@@ -682,11 +729,11 @@ namespace LightFileExplorer
             }
             catch (Exception ex)
             {
-                this.MainWindow_ReportError(ex);
+                this.MainWindowReportError(ex);
             }
         }
 
-        private void FilesNewShortcutToolStripMenuItem_Click(object sender, EventArgs e)
+        private void FilesNewShortcutToolStripMenuItemClick(object sender, EventArgs e)
         {
             try
             {
@@ -720,7 +767,7 @@ namespace LightFileExplorer
                         {
                             this.FileView.SelectedItems.Clear();
 
-                            FileViewUtility.MoveTo(this.FileView.Items.Add(FileViewUtility.BuildFile(shortcutName, 0, DateTime.Now, FileAttributes.Normal)));
+                            FileViewUtility.MoveTo(this.FileView.AddItem(FileViewUtility.BuildFile(shortcutName, 0, DateTime.Now, FileAttributes.Normal)));
                         }
                         finally
                         {
@@ -731,11 +778,11 @@ namespace LightFileExplorer
             }
             catch (Exception ex)
             {
-                this.MainWindow_ReportError(ex);
+                this.MainWindowReportError(ex);
             }
         }
 
-        private void FilesOpenToolStripMenuItem_Click(object sender, EventArgs e)
+        private void FilesOpenToolStripMenuItemClick(object sender, EventArgs e)
         {
             try
             {
@@ -763,7 +810,7 @@ namespace LightFileExplorer
                         }
                         else
                         {
-                            this.MainWindow_GotoFolder(Path.Combine(this.CurrentPath, viewItem.Name));
+                            this.MainWindowGotoFolder(Path.Combine(this.CurrentPath, viewItem.Name));
                         }
                     }
                 }
@@ -774,11 +821,11 @@ namespace LightFileExplorer
             }
             catch (Exception ex)
             {
-                this.MainWindow_ReportError(ex);
+                this.MainWindowReportError(ex);
             }
         }
 
-        private void FilesPasteToolStripMenuItem_Click(object sender, EventArgs e)
+        private void FilesPasteToolStripMenuItemClick(object sender, EventArgs e)
         {
             try
             {
@@ -821,7 +868,7 @@ namespace LightFileExplorer
                         {
                             case 1: // Copy.
 
-                                this.MainWindow_RunAsyncOperation
+                                this.MainWindowRunAsyncOperation
                                 (
                                     (asyncOperationParameter) =>
                                     {
@@ -852,7 +899,7 @@ namespace LightFileExplorer
 
                             case 2: // Move.
 
-                                this.MainWindow_RunAsyncOperation
+                                this.MainWindowRunAsyncOperation
                                 (
                                     (asyncOperationParameter) =>
                                     {
@@ -890,23 +937,23 @@ namespace LightFileExplorer
             }
             catch (Exception ex)
             {
-                this.MainWindow_ReportError(ex);
+                this.MainWindowReportError(ex);
             }
         }
 
-        private void FilesRefreshToolStripMenuItem_Click(object sender, EventArgs e)
+        private void FilesRefreshToolStripMenuItemClick(object sender, EventArgs e)
         {
             try
             {
-                this.MainWindow_GotoFolder(this.CurrentPath, false, true);
+                this.MainWindowGotoFolder(this.CurrentPath, false, true);
             }
             catch (Exception ex)
             {
-                this.MainWindow_ReportError(ex);
+                this.MainWindowReportError(ex);
             }
         }
 
-        private void FilesRenameToolStripMenuItem_Click(object sender, EventArgs e)
+        private void FilesRenameToolStripMenuItemClick(object sender, EventArgs e)
         {
             try
             {
@@ -920,7 +967,7 @@ namespace LightFileExplorer
                     {
                         var viewItem = this.FileView.SelectedItems[0];
 
-                        var inputWindow = new InputTextWindow("Rename", "New &Name:", viewItem.Name);
+                        var inputWindow = new InputTextWindow("Rename", "New &Name:", viewItem.Name, -1, FileViewUtility.IsFile(viewItem) ? viewItem.Name.IndexOf('.') : -1);
 
                         if (inputWindow.ShowDialog() == DialogResult.OK)
                         {
@@ -932,9 +979,13 @@ namespace LightFileExplorer
 
                                 // Not checking if the new name already exists to allow for changes only in casing.
 
+                                var previousName = viewItem.Name;
+
                                 FileUtility.RenamePath(viewItem.Name, newName);
 
                                 FileViewUtility.Rename(viewItem, newName);
+
+                                this.FileView.RenameItemKey(previousName, viewItem);
                             }
                         }
                     }
@@ -946,11 +997,11 @@ namespace LightFileExplorer
             }
             catch (Exception ex)
             {
-                this.MainWindow_ReportError(ex);
+                this.MainWindowReportError(ex);
             }
         }
 
-        private void FilesSelectAllToolStripMenuItem_Click(object sender, EventArgs e)
+        private void FilesSelectAllToolStripMenuItemClick(object sender, EventArgs e)
         {
             this.FileView.BeginUpdate();
 
@@ -969,7 +1020,7 @@ namespace LightFileExplorer
             }
         }
 
-        private void FilesViewAsBinaryToolStripMenuItem_Click(object sender, EventArgs e)
+        private void FilesViewAsBinaryToolStripMenuItemClick(object sender, EventArgs e)
         {
             try
             {
@@ -995,11 +1046,11 @@ namespace LightFileExplorer
             }
             catch (Exception ex)
             {
-                this.MainWindow_ReportError(ex);
+                this.MainWindowReportError(ex);
             }
         }
 
-        private void FilesViewAsTextToolStripMenuItem_Click(object sender, EventArgs e)
+        private void FilesViewAsTextToolStripMenuItemClick(object sender, EventArgs e)
         {
             try
             {
@@ -1025,11 +1076,11 @@ namespace LightFileExplorer
             }
             catch (Exception ex)
             {
-                this.MainWindow_ReportError(ex);
+                this.MainWindowReportError(ex);
             }
         }
 
-        private void FileSystemWatcher_OnChanged(object source, FileSystemEventArgs e)
+        private void FileSystemWatcherOnChanged(object source, FileSystemEventArgs e)
         {
 #if DEBUG
             Debug.Print($"FSW Change: Name \"{e.Name}\"");
@@ -1038,7 +1089,7 @@ namespace LightFileExplorer
             FileSystemWatcherDictionary.TryAdd(e.Name, 1);
         }
 
-        private void FileSystemWatcher_OnCreated(object source, FileSystemEventArgs e)
+        private void FileSystemWatcherOnCreated(object source, FileSystemEventArgs e)
         {
 #if DEBUG
             Debug.Print($"FSW Create: Name \"{e.Name}\"");
@@ -1047,7 +1098,7 @@ namespace LightFileExplorer
             FileSystemWatcherDictionary.TryAdd(e.Name, 1);
         }
 
-        private void FileSystemWatcher_OnDeleted(object source, FileSystemEventArgs e)
+        private void FileSystemWatcherOnDeleted(object source, FileSystemEventArgs e)
         {
 #if DEBUG
             Debug.Print($"FSW Delete: Name \"{e.Name}\"");
@@ -1056,7 +1107,7 @@ namespace LightFileExplorer
             FileSystemWatcherDictionary.TryAdd(e.Name, 1);
         }
 
-        private void FileSystemWatcher_OnRenamed(object source, RenamedEventArgs e)
+        private void FileSystemWatcherOnRenamed(object source, RenamedEventArgs e)
         {
 #if DEBUG
             Debug.Print($"FSW Rename: OldName \"{e.OldName}\" NewName \"{e.Name}\"");
@@ -1066,7 +1117,7 @@ namespace LightFileExplorer
             FileSystemWatcherDictionary.TryAdd(e.Name, 1);
         }
 
-        private void FileView_ColumnClick(object sender, ColumnClickEventArgs e)
+        private void FileViewColumnClick(object sender, ColumnClickEventArgs e)
         {
             try
             {
@@ -1074,44 +1125,42 @@ namespace LightFileExplorer
                 {
                     case 0:
 
-                        this.FileView.ListViewItemSorter = this.FileViewColumnNameSorter;
+                        this.ViewSortNameToolStripMenuItemClick(sender, e);
 
                         break;
 
                     case 1:
 
-                        this.FileView.ListViewItemSorter = this.FileViewColumnExtensionSorter;
+                        this.ViewSortExtensionToolStripMenuItemClick(sender, e);
 
                         break;
 
                     case 2:
 
-                        this.FileView.ListViewItemSorter = this.FileViewColumnSizeSorter;
+                        this.ViewSortSizeToolStripMenuItemClick(sender, e);
 
                         break;
 
                     case 3:
 
-                        this.FileView.ListViewItemSorter = this.FileViewColumnLastModifiedSorter;
+                        this.ViewSortDateModifiedToolStripMenuItemClick(sender, e);
 
                         break;
 
                     case 4:
 
-                        this.FileView.ListViewItemSorter = this.FileViewColumnAttributesSorter;
+                        this.ViewSortAttributesToolStripMenuItemClick(sender, e);
 
                         break;
                 }
-
-                this.StatusStrip_UpdateMessage();
             }
             catch (Exception ex)
             {
-                this.MainWindow_ReportError(ex);
+                this.MainWindowReportError(ex);
             }
         }
 
-        private void FileView_DragDrop(object sender, DragEventArgs e)
+        private void FileViewDragDrop(object sender, DragEventArgs e)
         {
             try
             {
@@ -1125,7 +1174,7 @@ namespace LightFileExplorer
                         {
                             case DragDropEffects.Copy:
 
-                                this.MainWindow_RunAsyncOperation
+                                this.MainWindowRunAsyncOperation
                                 (
                                     (asyncOperationParameter) =>
                                     {
@@ -1156,7 +1205,7 @@ namespace LightFileExplorer
 
                             case DragDropEffects.Move:
 
-                                this.MainWindow_RunAsyncOperation
+                                this.MainWindowRunAsyncOperation
                                 (
                                     (asyncOperationParameter) =>
                                     {
@@ -1190,11 +1239,11 @@ namespace LightFileExplorer
             }
             catch (Exception ex)
             {
-                this.MainWindow_ReportError(ex);
+                this.MainWindowReportError(ex);
             }
         }
 
-        private void FileView_DragEnter(object sender, DragEventArgs e)
+        private void FileViewDragEnter(object sender, DragEventArgs e)
         {
             try
             {
@@ -1202,11 +1251,11 @@ namespace LightFileExplorer
             }
             catch (Exception ex)
             {
-                this.MainWindow_ReportError(ex);
+                this.MainWindowReportError(ex);
             }
         }
 
-        private void FileView_ItemDrag(object sender, ItemDragEventArgs e)
+        private void FileViewItemDrag(object sender, ItemDragEventArgs e)
         {
             try
             {
@@ -1214,11 +1263,11 @@ namespace LightFileExplorer
             }
             catch (Exception ex)
             {
-                this.MainWindow_ReportError(ex);
+                this.MainWindowReportError(ex);
             }
         }
 
-        private void FileView_KeyDown(object sender, KeyEventArgs e)
+        private void FileViewKeyDown(object sender, KeyEventArgs e)
         {
             switch (e.KeyCode)
             {
@@ -1240,7 +1289,7 @@ namespace LightFileExplorer
                 case Keys.Back:
                 case Keys.Left:
 
-                    this.GotoParentFolderToolStripMenuItem_Click(sender, null);
+                    this.GotoParentFolderToolStripMenuItemClick(sender, null);
 
                     e.SuppressKeyPress = true;
 
@@ -1251,7 +1300,7 @@ namespace LightFileExplorer
                 case Keys.Enter:
                 case Keys.Right:
 
-                    this.FilesOpenToolStripMenuItem_Click(sender, null);
+                    this.FilesOpenToolStripMenuItemClick(sender, null);
 
                     e.SuppressKeyPress = true;
 
@@ -1261,7 +1310,7 @@ namespace LightFileExplorer
             }
         }
 
-        private void FileView_MouseClick(object sender, MouseEventArgs e)
+        private void FileViewMouseClick(object sender, MouseEventArgs e)
         {
             try
             {
@@ -1279,11 +1328,11 @@ namespace LightFileExplorer
             }
             catch (Exception ex)
             {
-                this.MainWindow_ReportError(ex);
+                this.MainWindowReportError(ex);
             }
         }
 
-        private void FileView_MouseDoubleClick(object sender, MouseEventArgs e)
+        private void FileViewMouseDoubleClick(object sender, MouseEventArgs e)
         {
             try
             {
@@ -1291,23 +1340,23 @@ namespace LightFileExplorer
                 {
                     case MouseButtons.Left:
 
-                        this.FilesOpenToolStripMenuItem_Click(sender, null);
+                        this.FilesOpenToolStripMenuItemClick(sender, null);
 
                         break;
                 }
             }
             catch (Exception ex)
             {
-                this.MainWindow_ReportError(ex);
+                this.MainWindowReportError(ex);
             }
         }
 
-        private void FileView_SelectedIndexChanged(object sender, EventArgs e)
+        private void FileViewSelectedIndexChanged(object sender, EventArgs e)
         {
-            this.StatusStrip_UpdateMessage();
+            this.StatusStripUpdateMessage();
         }
 
-        private void GotoCustomFolderToolStripMenuItem_Click(object sender, EventArgs e)
+        private void GotoCustomFolderToolStripMenuItemClick(object sender, EventArgs e)
         {
             try
             {
@@ -1324,73 +1373,73 @@ namespace LightFileExplorer
                             throw new Exception($"The \"{gotoWindow.SelectedPath}\" path does not exist.");
                         }
 
-                        this.MainWindow_GotoFolder(gotoWindow.SelectedPath);
+                        this.MainWindowGotoFolder(gotoWindow.SelectedPath);
                     }
                 }
             }
             catch (Exception ex)
             {
-                this.MainWindow_ReportError(ex);
+                this.MainWindowReportError(ex);
             }
         }
 
-        private void GotoDownloadsFolderToolStripMenuItem_Click(object sender, EventArgs e)
+        private void GotoDownloadsFolderToolStripMenuItemClick(object sender, EventArgs e)
         {
             try
             {
-                this.MainWindow_GotoFolder(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads"));
+                this.MainWindowGotoFolder(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads"));
             }
             catch (Exception ex)
             {
-                this.MainWindow_ReportError(ex);
+                this.MainWindowReportError(ex);
             }
         }
 
-        private void GotoParentFolderToolStripMenuItem_Click(object sender, EventArgs e)
+        private void GotoParentFolderToolStripMenuItemClick(object sender, EventArgs e)
         {
             try
             {
                 if (!string.Equals(Path.GetPathRoot(this.CurrentPath).TrimEnd(Path.DirectorySeparatorChar), this.CurrentPath.TrimEnd(Path.DirectorySeparatorChar), StringComparison.OrdinalIgnoreCase))
                 {
-                    this.MainWindow_GotoFolder(Path.GetDirectoryName(this.CurrentPath), true);
+                    this.MainWindowGotoFolder(Path.GetDirectoryName(this.CurrentPath), true);
                 }
             }
             catch (Exception ex)
             {
-                this.MainWindow_ReportError(ex);
+                this.MainWindowReportError(ex);
             }
         }
 
-        private void GotoUserFolderToolStripMenuItem_Click(object sender, EventArgs e)
+        private void GotoUserFolderToolStripMenuItemClick(object sender, EventArgs e)
         {
             try
             {
-                this.MainWindow_GotoFolder(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile));
+                this.MainWindowGotoFolder(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile));
             }
             catch (Exception ex)
             {
-                this.MainWindow_ReportError(ex);
+                this.MainWindowReportError(ex);
             }
         }
 
-        private void GotoWindowsFolderToolStripMenuItem_Click(object sender, EventArgs e)
+        private void GotoWindowsFolderToolStripMenuItemClick(object sender, EventArgs e)
         {
             try
             {
-                this.MainWindow_GotoFolder(Environment.GetFolderPath(Environment.SpecialFolder.Windows));
+                this.MainWindowGotoFolder(Environment.GetFolderPath(Environment.SpecialFolder.Windows));
             }
             catch (Exception ex)
             {
-                this.MainWindow_ReportError(ex);
+                this.MainWindowReportError(ex);
             }
         }
 
-        private void HelpAboutToolStripMenuItem_Click(object sender, EventArgs e)
+        private void HelpAboutToolStripMenuItemClick(object sender, EventArgs e)
         {
-            MessageBox.Show($"A file explorer application, designed for speed. (v. {Application.ProductVersion})", "About", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show($"A file explorer application designed for speed. (v. {Application.ProductVersion})", "About", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
-        private void HelpProjectPageToolStripMenuItem_Click(object sender, EventArgs e)
+        private void HelpProjectPageToolStripMenuItemClick(object sender, EventArgs e)
         {
             try
             {
@@ -1398,20 +1447,20 @@ namespace LightFileExplorer
             }
             catch (Exception ex)
             {
-                this.MainWindow_ReportError(ex);
+                this.MainWindowReportError(ex);
             }
         }
 
-        private void MainWindow_FormClosed(object sender, FormClosedEventArgs e)
+        private void MainWindowFormClosed(object sender, FormClosedEventArgs e)
         {
             if (this.FileSystemWatcher != null)
             {
                 this.FileSystemWatcher.EnableRaisingEvents = false;
 
-                this.FileSystemWatcher.Changed -= FileSystemWatcher_OnChanged;
-                this.FileSystemWatcher.Created -= FileSystemWatcher_OnCreated;
-                this.FileSystemWatcher.Deleted -= FileSystemWatcher_OnDeleted;
-                this.FileSystemWatcher.Renamed -= FileSystemWatcher_OnRenamed;
+                this.FileSystemWatcher.Changed -= FileSystemWatcherOnChanged;
+                this.FileSystemWatcher.Created -= FileSystemWatcherOnCreated;
+                this.FileSystemWatcher.Deleted -= FileSystemWatcherOnDeleted;
+                this.FileSystemWatcher.Renamed -= FileSystemWatcherOnRenamed;
 
                 this.FileSystemWatcher.Dispose();
 
@@ -1421,7 +1470,7 @@ namespace LightFileExplorer
             }
         }
 
-        private void MainWindow_FormClosing(object sender, FormClosingEventArgs e)
+        private void MainWindowFormClosing(object sender, FormClosingEventArgs e)
         {
             if (this.NumberOfRunningAsyncOperations > 0)
             {
@@ -1432,16 +1481,16 @@ namespace LightFileExplorer
             }
         }
 
-        private void MainWindow_GotoFolder(string path, bool goingToParentFolder = false, bool refreshingCurrentFolder = false)
+        private void MainWindowGotoFolder(string path, bool goingToParentFolder = false, bool refreshingCurrentFolder = false)
         {
             if (this.FileSystemWatcher != null)
             {
                 this.FileSystemWatcher.EnableRaisingEvents = false;
 
-                this.FileSystemWatcher.Changed -= FileSystemWatcher_OnChanged;
-                this.FileSystemWatcher.Created -= FileSystemWatcher_OnCreated;
-                this.FileSystemWatcher.Deleted -= FileSystemWatcher_OnDeleted;
-                this.FileSystemWatcher.Renamed -= FileSystemWatcher_OnRenamed;
+                this.FileSystemWatcher.Changed -= FileSystemWatcherOnChanged;
+                this.FileSystemWatcher.Created -= FileSystemWatcherOnCreated;
+                this.FileSystemWatcher.Deleted -= FileSystemWatcherOnDeleted;
+                this.FileSystemWatcher.Renamed -= FileSystemWatcherOnRenamed;
 
                 this.FileSystemWatcher.Dispose();
 
@@ -1482,7 +1531,7 @@ namespace LightFileExplorer
 
             this.Text = $"{this.CurrentPath} - LFE";
 
-            this.StatusStrip_UpdateMessage("Getting folder content, please wait...", true);
+            this.StatusStripUpdateMessage("Getting folder content, please wait...", true);
 
             try
             {
@@ -1496,13 +1545,13 @@ namespace LightFileExplorer
 
                     try
                     {
-                        this.FileView.Items.Clear();
+                        this.FileView.ClearItems();
 
                         FileUtility.ScanMultipleItems
                         (
                             this.CurrentPath,
-                            (name, lastWriteTime, attributes) => { this.FileView.Items.Add(FileViewUtility.BuildFolder(name, lastWriteTime, attributes)); },
-                            (name, size, lastWriteTime, attributes) => { this.FileView.Items.Add(FileViewUtility.BuildFile(name, size, lastWriteTime, attributes)); }
+                            (name, lastWriteTime, attributes) => { this.FileView.AddItem(FileViewUtility.BuildFolder(name, lastWriteTime, attributes)); },
+                            (name, size, lastWriteTime, attributes) => { this.FileView.AddItem(FileViewUtility.BuildFile(name, size, lastWriteTime, attributes)); }
                         );
                     }
                     finally
@@ -1512,7 +1561,7 @@ namespace LightFileExplorer
 
                     if (!string.IsNullOrEmpty(selectedViewItemName))
                     {
-                        var viewItem = this.FileView.Items[selectedViewItemName];
+                        var viewItem = this.FileView.FindItemByKey(selectedViewItemName);
 
                         if (viewItem != null)
                         {
@@ -1527,54 +1576,53 @@ namespace LightFileExplorer
             }
             finally
             {
-                this.StatusStrip_UpdateMessage();
+                this.StatusStripUpdateMessage();
             }
 
             this.FileSystemWatcher = new FileSystemWatcher(this.CurrentPath)
             {
-                InternalBufferSize = 32768
+                InternalBufferSize = 65536
             };
 
             this.FileSystemWatcher.NotifyFilter = NotifyFilters.Attributes | NotifyFilters.CreationTime | NotifyFilters.DirectoryName | NotifyFilters.FileName | NotifyFilters.LastWrite | NotifyFilters.Size;
 
-            this.FileSystemWatcher.Changed += FileSystemWatcher_OnChanged;
-            this.FileSystemWatcher.Created += FileSystemWatcher_OnCreated;
-            this.FileSystemWatcher.Deleted += FileSystemWatcher_OnDeleted;
-            this.FileSystemWatcher.Renamed += FileSystemWatcher_OnRenamed;
+            this.FileSystemWatcher.Changed += FileSystemWatcherOnChanged;
+            this.FileSystemWatcher.Created += FileSystemWatcherOnCreated;
+            this.FileSystemWatcher.Deleted += FileSystemWatcherOnDeleted;
+            this.FileSystemWatcher.Renamed += FileSystemWatcherOnRenamed;
 
             this.FileSystemWatcher.IncludeSubdirectories = false;
 
             this.FileSystemWatcher.EnableRaisingEvents = true;
         }
 
-        private void MainWindow_Load(object sender, EventArgs e)
+        private void MainWindowLoad(object sender, EventArgs e)
         {
+            // Since we are intercepting the Windows Forms draw handler so that it never runs, we need to use the Windows API here.
             WindowsApi.SendMessage(this.FileView.Handle, WindowsApi.LVM_SETTEXTBKCOLOR, IntPtr.Zero, unchecked((IntPtr)(int)0xFFFFFF));
 
             try
             {
-                this.MainWindow_GotoFolder(this.CurrentPath);
+                this.MainWindowGotoFolder(this.CurrentPath);
             }
             catch (Exception ex)
             {
-                this.MainWindow_ReportError(ex);
+                this.MainWindowReportError(ex);
             }
         }
 
-        private void MainWindow_ReportError(string operation, Exception ex)
+        private void MainWindowReportError(string operation, Exception ex)
         {
             new ErrorWindow(this, operation, ex).ShowDialog();
         }
 
-        private void MainWindow_ReportError(Exception ex)
+        private void MainWindowReportError(Exception ex)
         {
             new ErrorWindow(this, ex).ShowDialog();
         }
 
-        private void MainWindow_RunAsyncOperation<T>(Action<T> action, T parameter, string description)
+        private void MainWindowRunAsyncOperation<T>(Action<T> action, T parameter, string description)
         {
-            const int ProgressWindowWaitTime = 500;
-
             var controlThread = new Thread
             (
                 new ThreadStart
@@ -1610,7 +1658,7 @@ namespace LightFileExplorer
 
                         workerThread.Start();
 
-                        if (!workerThread.Join(ProgressWindowWaitTime))
+                        if (!workerThread.Join(ConfigurationUtility.ProgressWindowWaitTime))
                         {
                             ProgressWindow progressWindow = null;
 
@@ -1654,7 +1702,7 @@ namespace LightFileExplorer
                                     (
                                         () =>
                                         {
-                                            this.MainWindow_ReportError(description, workerEx);
+                                            this.MainWindowReportError(description, workerEx);
                                         }
                                     )
                                 );
@@ -1670,7 +1718,7 @@ namespace LightFileExplorer
                                     (
                                         () =>
                                         {
-                                            this.MainWindow_ReportError(description, workerEx);
+                                            this.MainWindowReportError(description, workerEx);
                                         }
                                     )
                                 );
@@ -1688,7 +1736,7 @@ namespace LightFileExplorer
             controlThread.Start();
         }
 
-        private void StatusStrip_UpdateMessage(string message = null, bool forceRefresh = false)
+        private void StatusStripUpdateMessage(string message = null, bool forceRefresh = false)
         {
             this.StatusStripMessageLabel.Text = message ?? $"{this.FileView.Items.Count} items{((this.FileView.ListViewItemSorter != null) ? $" ordered by {((IHasName)this.FileView.ListViewItemSorter).Name}" : string.Empty)}, {this.FileView.SelectedItems.Count} selected.";
 
@@ -1698,93 +1746,7 @@ namespace LightFileExplorer
             }
         }
 
-        private void Timer_Tick(object sender, EventArgs e)
-        {
-            if (!(this.FileSystemWatcherDictionary.Count > 0))
-            {
-                return;
-            }
-
-            try
-            {
-                try
-                {
-                    this.FileView.BeginUpdate();
-
-                    try
-                    {
-                        foreach (var item in this.FileSystemWatcherDictionary)
-                        {
-                            var key = item.Key;
-
-                            if (this.FileSystemWatcherDictionary.TryRemove(key, out byte _))
-                            {
-                                var viewItem = this.FileView.Items[key];
-
-                                if (viewItem != null)
-                                {
-#if DEBUG
-                                    Debug.Print($"TMR Change: Name \"{key}\"");
-#endif
-
-                                    if
-                                    (
-                                        !FileUtility.ScanSingleItem
-                                        (
-                                            key,
-                                            (name, lastWriteTime, attributes) => { FileViewUtility.SetFolder(viewItem, name, lastWriteTime, attributes); },
-                                            (name, size, lastWriteTime, attributes) => { FileViewUtility.SetFile(viewItem, name, size, lastWriteTime, attributes); }
-                                        )
-                                    )
-                                    {
-#if DEBUG
-                                        Debug.Print($"TMR Delete: Name \"{key}\"");
-#endif
-
-                                        this.FileView.Items.RemoveByKey(key);
-                                    }
-                                }
-                                else
-                                {
-#if DEBUG
-                                    Debug.Print($"TMR Create: Name \"{key}\"");
-#endif
-
-                                    if
-                                    (
-                                        !FileUtility.ScanSingleItem
-                                        (
-                                            key,
-                                            (name, lastWriteTime, attributes) => { this.FileView.Items.Add(FileViewUtility.BuildFolder(name, lastWriteTime, attributes)); },
-                                            (name, size, lastWriteTime, attributes) => { this.FileView.Items.Add(FileViewUtility.BuildFile(name, size, lastWriteTime, attributes)); }
-                                        )
-                                    )
-                                    {
-#if DEBUG
-                                        Debug.Print($"TMR Forget: Name \"{key}\"");
-#endif
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    finally
-                    {
-                        this.FileView.EndUpdate();
-                    }
-                }
-                finally
-                {
-                    this.StatusStrip_UpdateMessage();
-                }
-            }
-            catch (Exception ex)
-            {
-                this.MainWindow_ReportError(ex);
-            }
-        }
-
-        private void ToolsCommandPromptToolStripMenuItem_Click(object sender, EventArgs e)
+        private void ToolsCommandPromptToolStripMenuItemClick(object sender, EventArgs e)
         {
             try
             {
@@ -1792,11 +1754,11 @@ namespace LightFileExplorer
             }
             catch (Exception ex)
             {
-                this.MainWindow_ReportError(ex);
+                this.MainWindowReportError(ex);
             }
         }
 
-        private void ToolsFileExplorerToolStripMenuItem_Click(object sender, EventArgs e)
+        private void ToolsFileExplorerToolStripMenuItemClick(object sender, EventArgs e)
         {
             try
             {
@@ -1804,11 +1766,11 @@ namespace LightFileExplorer
             }
             catch (Exception ex)
             {
-                this.MainWindow_ReportError(ex);
+                this.MainWindowReportError(ex);
             }
         }
 
-        private void ToolsLightFileExplorerToolStripMenuItem_Click(object sender, EventArgs e)
+        private void ToolsLightFileExplorerToolStripMenuItemClick(object sender, EventArgs e)
         {
             try
             {
@@ -1816,11 +1778,11 @@ namespace LightFileExplorer
             }
             catch (Exception ex)
             {
-                this.MainWindow_ReportError(ex);
+                this.MainWindowReportError(ex);
             }
         }
 
-        private void ToolsPowerShellConsoleToolStripMenuItem_Click(object sender, EventArgs e)
+        private void ToolsPowerShellConsoleToolStripMenuItemClick(object sender, EventArgs e)
         {
             try
             {
@@ -1828,43 +1790,53 @@ namespace LightFileExplorer
             }
             catch (Exception ex)
             {
-                this.MainWindow_ReportError(ex);
+                this.MainWindowReportError(ex);
             }
         }
 
-        private void ViewSortAttributesToolStripMenuItem_Click(object sender, EventArgs e)
+        private void ViewSortAttributesToolStripMenuItemClick(object sender, EventArgs e)
         {
             this.FileView.ListViewItemSorter = this.FileViewColumnAttributesSorter;
 
-            this.StatusStrip_UpdateMessage();
+            FileViewUtility.SetViewSortIndication(this.FileView, 4);
+
+            this.StatusStripUpdateMessage();
         }
 
-        private void ViewSortExtensionToolStripMenuItem_Click(object sender, EventArgs e)
+        private void ViewSortExtensionToolStripMenuItemClick(object sender, EventArgs e)
         {
             this.FileView.ListViewItemSorter = this.FileViewColumnExtensionSorter;
 
-            this.StatusStrip_UpdateMessage();
+            FileViewUtility.SetViewSortIndication(this.FileView, 1);
+
+            this.StatusStripUpdateMessage();
         }
 
-        private void ViewSortLastModifiedToolStripMenuItem_Click(object sender, EventArgs e)
+        private void ViewSortDateModifiedToolStripMenuItemClick(object sender, EventArgs e)
         {
-            this.FileView.ListViewItemSorter = this.FileViewColumnLastModifiedSorter;
+            this.FileView.ListViewItemSorter = this.FileViewColumnDateModifiedSorter;
 
-            this.StatusStrip_UpdateMessage();
+            FileViewUtility.SetViewSortIndication(this.FileView, 3);
+
+            this.StatusStripUpdateMessage();
         }
 
-        private void ViewSortNameToolStripMenuItem_Click(object sender, EventArgs e)
+        private void ViewSortNameToolStripMenuItemClick(object sender, EventArgs e)
         {
             this.FileView.ListViewItemSorter = this.FileViewColumnNameSorter;
 
-            this.StatusStrip_UpdateMessage();
+            FileViewUtility.SetViewSortIndication(this.FileView, 0);
+
+            this.StatusStripUpdateMessage();
         }
 
-        private void ViewSortSizeToolStripMenuItem_Click(object sender, EventArgs e)
+        private void ViewSortSizeToolStripMenuItemClick(object sender, EventArgs e)
         {
             this.FileView.ListViewItemSorter = this.FileViewColumnSizeSorter;
 
-            this.StatusStrip_UpdateMessage();
+            FileViewUtility.SetViewSortIndication(this.FileView, 2);
+
+            this.StatusStripUpdateMessage();
         }
     }
 }

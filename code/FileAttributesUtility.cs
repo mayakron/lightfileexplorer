@@ -10,12 +10,12 @@ namespace LightFileExplorer
 
             int charIndex = 0;
 
-            if (fileAttributes.HasFlag(FileAttributes.Archive)) chars[charIndex++] = 'A';
-            if (fileAttributes.HasFlag(FileAttributes.ReadOnly)) chars[charIndex++] = 'R';
-            if (fileAttributes.HasFlag(FileAttributes.Hidden)) chars[charIndex++] = 'H';
-            if (fileAttributes.HasFlag(FileAttributes.System)) chars[charIndex++] = 'S';
-            if (fileAttributes.HasFlag(FileAttributes.Compressed)) chars[charIndex++] = 'C';
-            if (fileAttributes.HasFlag(FileAttributes.Encrypted)) chars[charIndex++] = 'E';
+            if ((fileAttributes & FileAttributes.Archive) != 0) chars[charIndex++] = 'A';
+            if ((fileAttributes & FileAttributes.ReadOnly) != 0) chars[charIndex++] = 'R';
+            if ((fileAttributes & FileAttributes.Hidden) != 0) chars[charIndex++] = 'H';
+            if ((fileAttributes & FileAttributes.System) != 0) chars[charIndex++] = 'S';
+            if ((fileAttributes & FileAttributes.Compressed) != 0) chars[charIndex++] = 'C';
+            if ((fileAttributes & FileAttributes.Encrypted) != 0) chars[charIndex++] = 'E';
 
             return new string(chars, 0, charIndex);
         }

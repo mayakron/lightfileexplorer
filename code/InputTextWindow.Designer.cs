@@ -62,7 +62,7 @@
             this.MyOkButton.TabIndex = 2;
             this.MyOkButton.Text = "&OK";
             this.MyOkButton.UseVisualStyleBackColor = true;
-            this.MyOkButton.Click += new System.EventHandler(this.MyOkButton_Click);
+            this.MyOkButton.Click += new System.EventHandler(this.MyOkButtonClick);
             // 
             // MyCancelButton
             // 
@@ -74,7 +74,7 @@
             this.MyCancelButton.TabIndex = 3;
             this.MyCancelButton.Text = "&Cancel";
             this.MyCancelButton.UseVisualStyleBackColor = true;
-            this.MyCancelButton.Click += new System.EventHandler(this.MyCancelButton_Click);
+            this.MyCancelButton.Click += new System.EventHandler(this.MyCancelButtonClick);
             // 
             // InputTextWindow
             // 

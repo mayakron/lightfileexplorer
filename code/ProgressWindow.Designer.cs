@@ -63,7 +63,7 @@
             this.MyAbortButton.TabIndex = 4;
             this.MyAbortButton.Text = "&Abort";
             this.MyAbortButton.UseVisualStyleBackColor = true;
-            this.MyAbortButton.Click += new System.EventHandler(this.MyAbortButton_Click);
+            this.MyAbortButton.Click += new System.EventHandler(this.MyAbortButtonClick);
             // 
             // ProgressWindow
             // 

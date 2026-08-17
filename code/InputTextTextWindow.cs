@@ -29,7 +29,7 @@ namespace LightFileExplorer
 
         public string Input2 { get; private set; }
 
-        private void MyCancelButton_Click(object sender, EventArgs e)
+        private void MyCancelButtonClick(object sender, EventArgs e)
         {
             this.Input1 = null;
             this.Input2 = null;
@@ -37,7 +37,7 @@ namespace LightFileExplorer
             this.DialogResult = DialogResult.Cancel;
         }
 
-        private void MyOkButton_Click(object sender, EventArgs e)
+        private void MyOkButtonClick(object sender, EventArgs e)
         {
             this.Input1 = this.Input1TextBox.Text.Trim();
             this.Input2 = this.Input2TextBox.Text.Trim();

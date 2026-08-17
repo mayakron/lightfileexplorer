@@ -14,17 +14,17 @@ namespace LightFileExplorer
 
         public string SelectedPath { get; private set; }
 
-        private void DrivesListBox_MouseDoubleClick(object sender, MouseEventArgs e)
+        private void DrivesListBoxMouseDoubleClick(object sender, MouseEventArgs e)
         {
-            this.MyOkButton_Click(sender, null);
+            this.MyOkButtonClick(sender, null);
         }
 
-        private void DrivesListBox_SelectedIndexChanged(object sender, EventArgs e)
+        private void DrivesListBoxSelectedIndexChanged(object sender, EventArgs e)
         {
             this.PathTextBox.Text = this.DrivesListBox.SelectedItem as string;
         }
 
-        private void GotoWindow_Load(object sender, EventArgs e)
+        private void GotoWindowLoad(object sender, EventArgs e)
         {
             foreach (var drive in FileUtility.GetLogicalDrives())
             {
@@ -32,14 +32,14 @@ namespace LightFileExplorer
             }
         }
 
-        private void MyCancelButton_Click(object sender, EventArgs e)
+        private void MyCancelButtonClick(object sender, EventArgs e)
         {
             this.SelectedPath = null;
 
             this.DialogResult = DialogResult.Cancel;
         }
 
-        private void MyOkButton_Click(object sender, EventArgs e)
+        private void MyOkButtonClick(object sender, EventArgs e)
         {
             this.SelectedPath = this.PathTextBox.Text.Trim();
 

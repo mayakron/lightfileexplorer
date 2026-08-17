@@ -2,13 +2,13 @@
 {
     internal static class StringUtility
     {
-        public static string EllipsisInTheMiddle(string text, int useIfLongerThan)
+        public static string EllipsisInTheMiddle(string text, int useEllipsisIfLongerThan)
         {
             var textLength = text.Length;
 
-            if (textLength > useIfLongerThan)
+            if (textLength > useEllipsisIfLongerThan)
             {
-                var halfLength = useIfLongerThan / 2;
+                var halfLength = useEllipsisIfLongerThan / 2;
 
                 return $"{text.Substring(0, halfLength)} [...] {text.Substring(textLength - halfLength, halfLength)}";
             }

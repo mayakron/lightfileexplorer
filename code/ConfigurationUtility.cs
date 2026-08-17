@@ -9,13 +9,17 @@ namespace LightFileExplorer
     {
         public static readonly string BinaryViewer;
 
-        public static readonly List<Tuple<string, string>> CustomTools;
+        public static readonly List<Tuple<string, string, string>> CustomTools;
 
         public static readonly Dictionary<string, int> FileIcons;
 
-        public static readonly List<Tuple<string, string>> GotoFavorites;
+        public static readonly int FileSystemWatcherTimerInterval;
 
-        public static readonly List<Tuple<string, string>> OpenWith;
+        public static readonly List<Tuple<string, string, string>> GotoFavorites;
+
+        public static readonly List<Tuple<string, string, string>> OpenWith;
+
+        public static readonly int ProgressWindowWaitTime;
 
         public static readonly string TextViewer;
 
@@ -25,7 +29,25 @@ namespace LightFileExplorer
 
             try
             {
-                FileIcons = ConfigurationManager.AppSettings["FileIcons"].Split('|').Select(x => x.Split('>')).ToDictionary(x => x[0], x => int.Parse(x[1]), StringComparer.OrdinalIgnoreCase);
+                FileSystemWatcherTimerInterval = int.Parse(ConfigurationManager.AppSettings["FileSystemWatcherTimerInterval"]);
+            }
+            catch
+            {
+                FileSystemWatcherTimerInterval = 500;
+            }
+
+            try
+            {
+                ProgressWindowWaitTime = int.Parse(ConfigurationManager.AppSettings["ProgressWindowWaitTime"]);
+            }
+            catch
+            {
+                ProgressWindowWaitTime = 500;
+            }
+
+            try
+            {
+                FileIcons = ConfigurationManager.AppSettings["FileIcons"].Split('|').Select(x => x.Split('>')).ToDictionary(x => x[0].ToUpperInvariant(), x => int.Parse(x[1]), StringComparer.OrdinalIgnoreCase);
             }
             catch
             {
@@ -34,7 +56,7 @@ namespace LightFileExplorer
 
             try
             {
-                OpenWith = ConfigurationManager.AppSettings["OpenWith"]?.Split('|').Select(x => x.Split('>')).Select(x => new Tuple<string, string>(x[0], x[1])).ToList();
+                OpenWith = ConfigurationManager.AppSettings["OpenWith"]?.Split('|').Select(x => x.Split('>')).Select(x => new Tuple<string, string, string>(x[0], x[1], (x.Length > 2) ? x[2] : null)).ToList();
             }
             catch
             {
@@ -58,7 +80,7 @@ namespace LightFileExplorer
 
             try
             {
-                GotoFavorites = ConfigurationManager.AppSettings["GotoFavorites"]?.Split('|').Select(x => x.Split('>')).Select(x => new Tuple<string, string>(x[0], x[1])).ToList();
+                GotoFavorites = ConfigurationManager.AppSettings["GotoFavorites"]?.Split('|').Select(x => x.Split('>')).Select(x => new Tuple<string, string, string>(x[0], x[1], (x.Length > 2) ? x[2] : null)).ToList();
             }
             catch
             {
@@ -66,7 +88,7 @@ namespace LightFileExplorer
 
             try
             {
-                CustomTools = ConfigurationManager.AppSettings["CustomTools"]?.Split('|').Select(x => x.Split('>')).Select(x => new Tuple<string, string>(x[0], x[1])).ToList();
+                CustomTools = ConfigurationManager.AppSettings["CustomTools"]?.Split('|').Select(x => x.Split('>')).Select(x => new Tuple<string, string, string>(x[0], x[1], (x.Length > 2) ? x[2] : null)).ToList();
             }
             catch
             {

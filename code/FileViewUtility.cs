@@ -12,17 +12,19 @@ namespace LightFileExplorer
 
         public static ListViewItem BuildFile(string name, ulong size, DateTime lastWriteTime, FileAttributes attributes)
         {
+            var fileExtension = Path.GetExtension(name).ToUpperInvariant();
+
             return new ListViewItem
             (
                 new[]
                 {
                     new ListViewItem.ListViewSubItem { Text = name, Tag = null },
-                    new ListViewItem.ListViewSubItem { Text = Path.GetExtension(name).ToUpperInvariant(), Tag = null },
+                    new ListViewItem.ListViewSubItem { Text = fileExtension, Tag = null },
                     new ListViewItem.ListViewSubItem { Text = size.ToString("N0", SizeColumnNumberFormatInfo), Tag = size },
                     new ListViewItem.ListViewSubItem { Text = lastWriteTime.ToString("yyyy-MM-dd HH:mm:ss"), Tag = lastWriteTime },
                     new ListViewItem.ListViewSubItem { Text = FileAttributesUtility.ToString(attributes), Tag = attributes }
                 },
-                GetFileIconIndex(name)
+                GetFileIconIndex(fileExtension)
             )
             {
                 Name = name
@@ -119,6 +121,11 @@ namespace LightFileExplorer
             return viewItem.ImageIndex == 0;
         }
 
+        public static bool IsFile(ListViewItem viewItem)
+        {
+            return viewItem.ImageIndex != 0;
+        }
+
         public static void MoveTo(ListViewItem viewItem)
         {
             viewItem.Selected = true;
@@ -140,11 +147,13 @@ namespace LightFileExplorer
 
         public static void SetFile(ListViewItem viewItem, string name, ulong size, DateTime lastWriteTime, FileAttributes attributes)
         {
-            viewItem.ImageIndex = GetFileIconIndex(name);
+            var fileExtension = Path.GetExtension(name).ToUpperInvariant();
+
+            viewItem.ImageIndex = GetFileIconIndex(fileExtension);
 
             viewItem.Text = name;
 
-            viewItem.SubItems[1].Text = Path.GetExtension(name).ToUpperInvariant();
+            viewItem.SubItems[1].Text = fileExtension;
             viewItem.SubItems[1].Tag = null;
 
             viewItem.SubItems[2].Text = size.ToString("N0", SizeColumnNumberFormatInfo);
@@ -176,9 +185,65 @@ namespace LightFileExplorer
             viewItem.SubItems[4].Tag = attributes;
         }
 
-        private static int GetFileIconIndex(string name)
+        public static void SetViewSortIndication(ListView listView, int index)
         {
-            return ConfigurationUtility.FileIcons.TryGetValue(Path.GetExtension(name), out var index) ? index : 1;
+            switch (index)
+            {
+                case 0:
+
+                    listView.Columns[0].Text = "Name ↑";
+                    listView.Columns[1].Text = "Extension";
+                    listView.Columns[2].Text = "Size";
+                    listView.Columns[3].Text = "Date Modified";
+                    listView.Columns[4].Text = "Attributes";
+
+                    break;
+
+                case 1:
+
+                    listView.Columns[0].Text = "Name";
+                    listView.Columns[1].Text = "Extension ↑";
+                    listView.Columns[2].Text = "Size";
+                    listView.Columns[3].Text = "Date Modified";
+                    listView.Columns[4].Text = "Attributes";
+
+                    break;
+
+                case 2:
+
+                    listView.Columns[0].Text = "Name";
+                    listView.Columns[1].Text = "Extension";
+                    listView.Columns[2].Text = "↑ Size";
+                    listView.Columns[3].Text = "Date Modified";
+                    listView.Columns[4].Text = "Attributes";
+
+                    break;
+
+                case 3:
+
+                    listView.Columns[0].Text = "Name";
+                    listView.Columns[1].Text = "Extension";
+                    listView.Columns[2].Text = "Size";
+                    listView.Columns[3].Text = "Date Modified ↑";
+                    listView.Columns[4].Text = "Attributes";
+
+                    break;
+
+                case 4:
+
+                    listView.Columns[0].Text = "Name";
+                    listView.Columns[1].Text = "Extension";
+                    listView.Columns[2].Text = "Size";
+                    listView.Columns[3].Text = "Date Modified";
+                    listView.Columns[4].Text = "Attributes ↑";
+
+                    break;
+            }
+        }
+
+        private static int GetFileIconIndex(string fileExtension)
+        {
+            return ConfigurationUtility.FileIcons.TryGetValue(fileExtension, out var index) ? index : 1;
         }
     }
 }
